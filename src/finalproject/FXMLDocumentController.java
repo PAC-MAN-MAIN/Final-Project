@@ -6,11 +6,20 @@
 package finalproject;
 
 import java.net.URL;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.ResourceBundle;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 
 /**
  *
@@ -18,18 +27,143 @@ import javafx.scene.control.Label;
  */
 public class FXMLDocumentController implements Initializable {
     
-    @FXML
-    private Label label;
+    private final double hourHeight = 60.0;
+    private final double timeGridFontSize = 15.0;
+    
+    private final LocalTime minimumTime = LocalTime.of(8, 0);
+    private final LocalTime maximumTime = LocalTime.of(20, 0);
+    
+    @FXML ListView eventList;
+    @FXML VBox mondayBox;
+    @FXML VBox tuesdayBox;
+    @FXML VBox wednesdayBox;
+    @FXML VBox thursdayBox;
+    @FXML VBox fridayBox;
+    
+    private ArrayList<TempEvent> mondayEvents = new ArrayList<>();
+    private ArrayList<TempEvent> tuesdayEvents = new ArrayList<>();
+    private ArrayList<TempEvent> wednesdayEvents = new ArrayList<>();
+    private ArrayList<TempEvent> thursdayEvents = new ArrayList<>();
+    private ArrayList<TempEvent> fridayEvents = new ArrayList<>();
+    
+  //--GUI-Actions---------------------------------------------------------------
     
     @FXML
-    private void handleButtonAction(ActionEvent event) {
-        System.out.println("You clicked me!");
-        label.setText("Hello World!");
+    public void timeGridEventAction(ActionEvent e) {
+        if(e.getSource() instanceof Button) {
+            Button b = (Button) e.getSource();
+            System.out.println(b.getText());
+        }
     }
+    
+  //--Utiliy--------------------------------------------------------------------
+    
+    /**
+     * Provides a button which can be put into a day's VBox to represent an event
+     * @param text The text that will show up on the button
+     * @param minutes The length of time the event lasts
+     * @param disabled - If the button should be disabled (true for fillers)
+     * @return 
+     */
+    private Button getTimeGridEvent(String text, int minutes, boolean disabled) {
+        Button b = new Button();
+        
+        // Default settings
+        b.setMaxWidth(Double.MAX_VALUE);
+        b.setMinHeight(0);
+        b.setMaxHeight(Double.MAX_VALUE);
+        b.setFont(new Font(timeGridFontSize));
+        b.setAlignment(Pos.TOP_LEFT);
+        b.setOnAction((ae) -> timeGridEventAction(ae));
+        
+        // Custom settings
+            double factor = minutes / 60d;
+            double height = (hourHeight * factor);
+        b.setPrefHeight(height);
+            b.setMinHeight(height);
+            b.setMaxHeight(height);
+        b.setText(text);
+        b.setDisable(disabled);
+        b.setVisible(!disabled);
+        
+        return b;
+    }
+    
+    /**
+     * Updates the Time Grid according to the events in the (day)Events ArrayLists
+     */
+    private void updateTimeGrid() {
+        updateDayTimeGrid(mondayBox, mondayEvents);
+        updateDayTimeGrid(tuesdayBox, tuesdayEvents);
+        updateDayTimeGrid(wednesdayBox, wednesdayEvents);
+        updateDayTimeGrid(thursdayBox, thursdayEvents);
+        updateDayTimeGrid(fridayBox, fridayEvents);
+    }
+    
+    /**
+     * Given a VBox and an ArrayList of events, will update the VBox to show events
+     * @param dayBox
+     * @param dayEvents 
+     */
+    private void updateDayTimeGrid(VBox dayBox, ArrayList<TempEvent> dayEvents) {
+        dayEvents.sort(Comparator.naturalOrder());
+        ObservableList<Node> dayChildren = dayBox.getChildren();
+        dayChildren.clear();
+        TempEvent previous = new TempEvent(minimumTime, 0, "");
+        for(int i = 0; i < dayEvents.size(); ++i) {
+            TempEvent e = dayEvents.get(i);
+            int distFromPrevious = getMinuteDistance(previous.getStartTime().plusMinutes(previous.getDurationMinutes()), e.getStartTime());
+            if(distFromPrevious > 0) {
+                dayChildren.add(getTimeGridEvent("", distFromPrevious, true));
+            }
+            dayChildren.add(getTimeGridEvent(e.getText(), e.getDurationMinutes(), false));
+            previous = e;
+        }
+    }
+    
+    /**
+     * Returns the number of minutes later than t1 that t2 is
+     * @param t1
+     * @param t2
+     * @return 
+     */
+    private int getMinuteDistance(LocalTime t1, LocalTime t2) {
+        int out = 0;
+        LocalTime dist = t2.minusHours(t1.getHour()).minusMinutes(t1.getMinute());
+        out += dist.getHour() * 60;
+        out += dist.getMinute();
+        if(out > (12 * 60)) out -= (24 * 60);
+        
+//        System.out.println(t1.toString() + " -> " + t2.toString() + " = " + out + " minutes");
+        
+        return out;
+    }
+    
+  //----------------------------------------------------------------------------
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
+        
+        // Example classes in every standard timeslot
+//        for(int i = 0; i < 12; ++i) {
+//            mondayEvents.add(new TempEvent(LocalTime.of(8 + i, 0), 60, "Hour " + (i+1)));
+//        }
+//        for(int i = 0; i < 8; ++i) {
+//            tuesdayEvents.add(new TempEvent(LocalTime.of(8 + (int)Math.floor(i * 1.5), (i % 2) * 30), 90, "Hour " + (i+1)));
+//        }
+        
+        //My schedule
+        mondayEvents.add(new TempEvent(LocalTime.of(15, 15), 50, "INTD-405, Smith"));
+        mondayEvents.add(new TempEvent(LocalTime.of(12, 45), 50, "PHIL-215, Krull"));
+        tuesdayEvents.add(new TempEvent(LocalTime.of(17, 30), 50, "MUS-131, Lynn"));
+        mondayEvents.add(new TempEvent(LocalTime.of(16, 30), 50, "MUS-130, Lynn"));
+        mondayEvents.add(new TempEvent(LocalTime.of(11, 45), 50, "CPTR-422, Mitchell"));
+        wednesdayEvents.addAll(mondayEvents);
+        fridayEvents.addAll(mondayEvents);
+        thursdayEvents.addAll(tuesdayEvents);
+        
+        updateTimeGrid();
+        
+    }
     
 }
