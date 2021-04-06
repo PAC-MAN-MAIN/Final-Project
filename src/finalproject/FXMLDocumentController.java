@@ -11,16 +11,21 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 /**
  *
@@ -47,14 +52,19 @@ public class FXMLDocumentController implements Initializable {
     private ArrayList<TempEvent> thursdayEvents = new ArrayList<>();
     private ArrayList<TempEvent> fridayEvents = new ArrayList<>();
     
+    private ArrayList<TempEvent> unplacedEvents = new ArrayList<>();
+    
   //--GUI-Actions---------------------------------------------------------------
     
-    @FXML
-    public void timeGridEventAction(ActionEvent e) {
+    @FXML public void timeGridEventAction(ActionEvent e) {
         if(e.getSource() instanceof Button) {
             Button b = (Button) e.getSource();
             System.out.println(b.getText());
         }
+    }
+    
+    @FXML public void createCourseAction() {
+        openCourseCreator();
     }
     
   //--Utiliy--------------------------------------------------------------------
@@ -88,6 +98,13 @@ public class FXMLDocumentController implements Initializable {
         b.setVisible(!disabled);
         
         return b;
+    }
+    
+    /**
+     * Updates the list of Unplaced Events according to the events in the unplacedEvents list
+     */
+    private void updateUnplacedEvents() {
+        eventList.setItems(FXCollections.observableArrayList(unplacedEvents));
     }
     
     /**
@@ -140,10 +157,26 @@ public class FXMLDocumentController implements Initializable {
         return out;
     }
     
-  //----------------------------------------------------------------------------
+  //--Window--------------------------------------------------------------------
+    
+    private final Stage courseCreatorStage = new Stage();
+    private CreateClassFXMLController courseCreatorController;
+    
+    private void openCourseCreator() {
+        courseCreatorController.clearFields();
+        courseCreatorStage.showAndWait();
+    }
+    
+    public void closeCourseCreator() {
+        courseCreatorStage.close();
+    }
+    
+  //--Init-and-Init-Events------------------------------------------------
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        initializeCourseCreator();
+            courseCreatorStage.setTitle("Course Scheduler - Course Creator");
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -165,6 +198,23 @@ public class FXMLDocumentController implements Initializable {
         
         updateTimeGrid();
         
+        unplacedEvents.add(new TempEvent(LocalTime.of(0, 0), 0, "UPLD-001"));
+        
+        updateUnplacedEvents();
+        
+    }
+    
+    private void initializeCourseCreator() {
+        try {
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("CreateClassFXML.fxml"));
+            Parent root = loader.load();
+            courseCreatorController = loader.getController();
+            
+            courseCreatorStage.setScene(new Scene(root));
+            courseCreatorController.setParent(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
 }
