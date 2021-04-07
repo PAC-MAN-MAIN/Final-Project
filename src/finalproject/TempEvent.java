@@ -34,5 +34,10 @@ public class TempEvent implements Comparable<TempEvent> {
     public int compareTo(TempEvent other) {
         return startTime.compareTo(other.startTime);
     }
+    
+    @Override
+    public String toString() {
+        return text;
+    }
 
 }
