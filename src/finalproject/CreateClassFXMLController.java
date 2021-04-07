@@ -83,4 +83,8 @@ public class CreateClassFXMLController implements Initializable {
         // TODO
     }    
     
+    public void edit(){
+        //TODO
+    }
+    
 }
