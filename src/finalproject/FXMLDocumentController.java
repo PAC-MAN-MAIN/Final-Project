@@ -22,6 +22,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -33,6 +38,7 @@ import javafx.stage.Stage;
 public class FXMLDocumentController implements Initializable {
     
     private final double hourHeight = 60.0;
+    private final double minuteIncrementSnap = 5.0;
     private final double timeGridFontSize = 15.0;
     
     private final LocalTime minimumTime = LocalTime.of(8, 0);
@@ -62,6 +68,93 @@ public class FXMLDocumentController implements Initializable {
         }
     }
     
+    @FXML public void timeGridDragStart(MouseEvent e) {
+        if(e.getSource() instanceof Button) {
+            Button b = (Button) e.getSource();
+            Dragboard db = b.startDragAndDrop(TransferMode.ANY);
+            
+            ClipboardContent content = new ClipboardContent();
+            content.putString(b.getText());
+            db.setContent(content);
+            
+            e.consume();
+        }
+    }
+    
+    @FXML public void timeGridDragStop(DragEvent e) {
+        double move = e.getY();
+            move = Math.round(move / minuteIncrementSnap) * minuteIncrementSnap;
+        int hour = (int) (move / 60) + 8;
+        int minute = (int) (move % 60);
+        
+        Button source = (Button)e.getGestureSource();
+        switch(source.getId()) {
+            case "Monday": findAndShiftEvent(source, mondayEvents, hour, minute);
+                break;
+            case "Tuesday": findAndShiftEvent(source, tuesdayEvents, hour, minute);
+                break;
+            case "Wednesday": findAndShiftEvent(source, wednesdayEvents, hour, minute);
+                break;
+            case "Thursday": findAndShiftEvent(source, thursdayEvents, hour, minute);
+                break;
+            case "Friday": findAndShiftEvent(source, fridayEvents, hour, minute);
+                break;
+        }
+        
+        VBox destination = (VBox) e.getSource();
+        if(!source.getId().equals(destination.getId())) {
+            switch(destination.getId()) {
+                case "Monday": shiftEventDay(source, mondayEvents);
+                    break;
+                case "Tuesday": shiftEventDay(source, tuesdayEvents);
+                    break;
+                case "Wednesday": shiftEventDay(source, wednesdayEvents);
+                    break;
+                case "Thursday": shiftEventDay(source, thursdayEvents);
+                    break;
+                case "Friday": shiftEventDay(source, fridayEvents);
+                    break;
+            }
+        }
+        
+        updateTimeGrid();
+    }
+        private void findAndShiftEvent(Button source, ArrayList<TempEvent> dayEvents, int hour, int minute) {
+            for(TempEvent te : dayEvents) {
+                if(te.getText().equals(source.getText())) {
+                    te.setStartTime(LocalTime.of(hour, minute));
+                }
+            }
+        }
+        private void shiftEventDay(Button source, ArrayList<TempEvent> destination) {
+            switch(source.getId()) {
+                case "Monday": destination.add(removeAndReturnEvent(source.getText(), mondayEvents));
+                    break;
+                case "Tuesday": destination.add(removeAndReturnEvent(source.getText(), tuesdayEvents));
+                    break;
+                case "Wednesday": destination.add(removeAndReturnEvent(source.getText(), wednesdayEvents));
+                    break;
+                case "Thursday": destination.add(removeAndReturnEvent(source.getText(), thursdayEvents));
+                    break;
+                case "Friday": destination.add(removeAndReturnEvent(source.getText(), fridayEvents));
+                    break;
+            }   
+        }
+            private TempEvent removeAndReturnEvent(String match, ArrayList<TempEvent> dayEvents) {
+                for(TempEvent te : dayEvents) {
+                    if(te.getText().equals(match)) {
+                        dayEvents.remove(te);
+                        return te;
+                    }
+                }
+                return null;
+            }
+        
+    @FXML public void timeGridDragAccept(DragEvent e) {
+        e.acceptTransferModes(TransferMode.ANY);
+        e.consume();
+    }
+    
     @FXML public void createCourseAction() {
         openCourseCreator();
     }
@@ -85,6 +178,7 @@ public class FXMLDocumentController implements Initializable {
         b.setFont(new Font(timeGridFontSize));
         b.setAlignment(Pos.TOP_LEFT);
         b.setOnAction((ae) -> timeGridEventAction(ae));
+        if(!disabled) b.setOnDragDetected((me) -> timeGridDragStart(me));
         
         // Custom settings
             double factor = minutes / 60d;
@@ -110,11 +204,11 @@ public class FXMLDocumentController implements Initializable {
      * Updates the Time Grid according to the events in the (day)Events ArrayLists
      */
     private void updateTimeGrid() {
-        updateDayTimeGrid(mondayBox, mondayEvents);
-        updateDayTimeGrid(tuesdayBox, tuesdayEvents);
-        updateDayTimeGrid(wednesdayBox, wednesdayEvents);
-        updateDayTimeGrid(thursdayBox, thursdayEvents);
-        updateDayTimeGrid(fridayBox, fridayEvents);
+        updateDayTimeGrid(mondayBox, mondayEvents, "Monday");
+        updateDayTimeGrid(tuesdayBox, tuesdayEvents, "Tuesday");
+        updateDayTimeGrid(wednesdayBox, wednesdayEvents, "Wednesday");
+        updateDayTimeGrid(thursdayBox, thursdayEvents, "Thursday");
+        updateDayTimeGrid(fridayBox, fridayEvents, "Friday");
     }
     
     /**
@@ -122,7 +216,7 @@ public class FXMLDocumentController implements Initializable {
      * @param dayBox
      * @param dayEvents 
      */
-    private void updateDayTimeGrid(VBox dayBox, ArrayList<TempEvent> dayEvents) {
+    private void updateDayTimeGrid(VBox dayBox, ArrayList<TempEvent> dayEvents, String id) {
         dayEvents.sort(Comparator.naturalOrder());
         ObservableList<Node> dayChildren = dayBox.getChildren();
         dayChildren.clear();
@@ -136,6 +230,7 @@ public class FXMLDocumentController implements Initializable {
             dayChildren.add(getTimeGridEvent(e.getText(), e.getDurationMinutes(), false));
             previous = e;
         }
+        for(Node n : dayChildren) n.setId(id);
     }
     
     /**
@@ -191,9 +286,13 @@ public class FXMLDocumentController implements Initializable {
         tuesdayEvents.add(new TempEvent(LocalTime.of(17, 30), 50, "MUS-131, Lynn"));
         mondayEvents.add(new TempEvent(LocalTime.of(16, 30), 50, "MUS-130, Lynn"));
         mondayEvents.add(new TempEvent(LocalTime.of(11, 45), 50, "CPTR-422, Mitchell"));
-        wednesdayEvents.addAll(mondayEvents);
-        fridayEvents.addAll(mondayEvents);
-        thursdayEvents.addAll(tuesdayEvents);
+        mondayEvents.forEach((te) -> {
+            wednesdayEvents.add(new TempEvent(LocalTime.of(te.getStartTime().getHour(), te.getStartTime().getMinute()), te.getDurationMinutes(), te.getText()));
+            fridayEvents.add(new TempEvent(LocalTime.of(te.getStartTime().getHour(), te.getStartTime().getMinute()), te.getDurationMinutes(), te.getText()));
+        });
+        tuesdayEvents.forEach((te) -> {
+            thursdayEvents.add(new TempEvent(LocalTime.of(te.getStartTime().getHour(), te.getStartTime().getMinute()), te.getDurationMinutes(), te.getText()));
+        });
         
         updateTimeGrid();
         
