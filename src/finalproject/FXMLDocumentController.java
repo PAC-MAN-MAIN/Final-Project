@@ -5,7 +5,6 @@
  */
 package finalproject;
 
-
 import java.net.URL;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -93,7 +92,7 @@ public class FXMLDocumentController implements Initializable {
         b.setPrefHeight(height);
             b.setMinHeight(height);
             b.setMaxHeight(height);
-       b.setText(text);
+        b.setText(text);
         b.setDisable(disabled);
         b.setVisible(!disabled);
         
