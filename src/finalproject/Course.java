@@ -42,6 +42,8 @@ public class Course {
     private CourseLength courseLength;
     private String schedulingConflicts;
     
+    private String text = "";
+    
     public Course(String Term, String CourseNum, String CourseTitle, String CORE, String LARC, boolean forFirstYears, String FacultyLastName, String FacultyFirstName, String AdjunctName, double SemesterHrs, double ScheduledHrs, double Capacity, String DaysOTW, double StartTime, double EndTime, String isLocked, MeetingMethod meetingMethod, String Notes, CourseLength courseLength, String Conflicts){
         courseTerm = Term;
         courseNumber = CourseNum;
@@ -229,6 +231,18 @@ public class Course {
         this.schedulingConflicts = schedulingConflicts;
     }
 
+    public String formatText(){
+        if(getFacultyFname() == null && getFacultyLname() == null){
+            return text += getCourseNumber() + ", " + getAdjunctTeacher();
+        }
+        else{
+            return text += getCourseNumber() + ", " + getFacultyLname();
+        }
+    }
     
+    @Override
+    public String toString(){
+        return formatText();
+    }
     
 }
