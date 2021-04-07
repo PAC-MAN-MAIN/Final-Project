@@ -6,24 +6,14 @@
 package finalproject;
 
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  *
  * @author shado
  */
-enum MeetingMethod{
-    LEC,
-    ONL,
-    TRVL,
-    LAB;
-}
-enum CourseLength{
-    firstHalf,
-    secondHalf,
-    fullSemester;
-}
 
-public class Course {
+public class Course implements Comparable<Course> {
     private String courseTerm;
     private String courseNumber;
     private String courseTitle; 
@@ -43,38 +33,47 @@ public class Course {
     private MeetingMethod meetingMethod;
     private String courseNotes;
     private CourseLength courseLength;
-    private String schedulingConflicts;
     
-    public Course(String Term, String CourseNum, String CourseTitle, String CORE, String LARC, boolean forFirstYears, String FacultyLastName, String FacultyFirstName, boolean Adjunct, double SemesterHrs, double ScheduledHrs, int Capacity, String DaysOTW, LocalTime StartTime, LocalTime EndTime, boolean isLocked, MeetingMethod meetingMethod, String Notes, CourseLength courseLength){
-        courseTerm = Term;
-        courseNumber = CourseNum;
-        courseTitle = CourseTitle;
-        COREdesignation = CORE;
-        LARCdesignation = LARC;
-        FYappropriate = forFirstYears;
-        facultyLname = FacultyLastName;
-        facultyFname = FacultyFirstName;
-        adjunct = Adjunct;
-        semesterHours = SemesterHrs;
-        scheduledHours = ScheduledHrs;
-        maxCapacity = Capacity;
-        daysScheduled = DaysOTW;
-        startTime = StartTime;
-        endTime = EndTime;
-        locked = isLocked;
-        meetingMethod = this.meetingMethod;
-        courseNotes = Notes;
-        courseLength = this.courseLength;
+    public enum MeetingMethod{
+        LEC,
+        ONL,
+        TRVL,
+        LAB;
+    }
+    public enum CourseLength{
+        FirstHalf,
+        SecondHalf,
+        FullSemester;
     }
     
-//    public Course(){
-//        
-//    }
+    public Course(String term, String courseNum, String courseTitle, String CORE, String LARC, boolean FYappropriate, String facultyLastName, String facultyFirstName, boolean adjunct, double semesterHrs, double scheduledHrs, int capacity, String daysOfWeek, LocalTime startTime, LocalTime endTime, boolean isLocked, MeetingMethod meetingMethod, String notes, CourseLength courseLength){
+        courseTerm = term;
+        courseNumber = courseNum;
+        this.courseTitle = courseTitle;
+        COREdesignation = CORE;
+        LARCdesignation = LARC;
+        this.FYappropriate = FYappropriate;
+        facultyLname = facultyLastName;
+        facultyFname = facultyFirstName;
+        this.adjunct = adjunct;
+        semesterHours = semesterHrs;
+        scheduledHours = scheduledHrs;
+        maxCapacity = capacity;
+        daysScheduled = daysOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        locked = isLocked;
+        this.meetingMethod = meetingMethod;
+        courseNotes = notes;
+        this.courseLength = courseLength;
+    }
+    public Course(){}
 
+    //<editor-fold desc="Getters/Setters" defaultstate="collapsed">
+    
     public String getCourseTerm() {
         return courseTerm;
     }
-
     public void setCourseTerm(String courseTerm) {
         this.courseTerm = courseTerm;
     }
@@ -82,7 +81,6 @@ public class Course {
     public String getCourseNumber() {
         return courseNumber;
     }
-
     public void setCourseNumber(String courseNumber) {
         this.courseNumber = courseNumber;
     }
@@ -90,7 +88,6 @@ public class Course {
     public String getCourseTitle() {
         return courseTitle;
     }
-
     public void setCourseTitle(String courseTitle) {
         this.courseTitle = courseTitle;
     }
@@ -98,7 +95,6 @@ public class Course {
     public String getCOREdesignation() {
         return COREdesignation;
     }
-
     public void setCOREdesignation(String COREdesignation) {
         this.COREdesignation = COREdesignation;
     }
@@ -106,7 +102,6 @@ public class Course {
     public String getLARCdesignation() {
         return LARCdesignation;
     }
-
     public void setLARCdesignation(String LARCdesignation) {
         this.LARCdesignation = LARCdesignation;
     }
@@ -114,7 +109,6 @@ public class Course {
     public boolean isFYappropriate() {
         return FYappropriate;
     }
-
     public void setFYappropriate(boolean FYappropriate) {
         this.FYappropriate = FYappropriate;
     }
@@ -122,7 +116,6 @@ public class Course {
     public String getFacultyLname() {
         return facultyLname;
     }
-
     public void setFacultyLname(String FacultyLname) {
         this.facultyLname = FacultyLname;
     }
@@ -130,7 +123,6 @@ public class Course {
     public String getFacultyFname() {
         return facultyFname;
     }
-
     public void setFacultyFname(String FacultyFname) {
         this.facultyFname = FacultyFname;
     }
@@ -138,7 +130,6 @@ public class Course {
     public boolean getAdjunct() {
         return adjunct;
     }
-
     public void setAdjunct(boolean isAdjunct) {
         this.adjunct = isAdjunct;
     }
@@ -146,7 +137,6 @@ public class Course {
     public double getSemesterHours() {
         return semesterHours;
     }
-
     public void setSemesterHours(double semesterHours) {
         this.semesterHours = semesterHours;
     }
@@ -154,7 +144,6 @@ public class Course {
     public double getScheduledHours() {
         return scheduledHours;
     }
-
     public void setScheduledHours(double scheduledHours) {
         this.scheduledHours = scheduledHours;
     }
@@ -162,7 +151,6 @@ public class Course {
     public int getMaxCapacity() {
         return maxCapacity;
     }
-
     public void setMaxCapacity(int maxCapacity) {
         this.maxCapacity = maxCapacity;
     }
@@ -170,7 +158,6 @@ public class Course {
     public String getDaysScheduled() {
         return daysScheduled;
     }
-
     public void setDaysScheduled(String daysScheduled) {
         this.daysScheduled = daysScheduled;
     }
@@ -178,7 +165,6 @@ public class Course {
     public LocalTime getStartTime() {
         return startTime;
     }
-
     public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
@@ -186,7 +172,6 @@ public class Course {
     public LocalTime getEndTime() {
         return endTime;
     }
-
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
@@ -194,7 +179,6 @@ public class Course {
     public boolean getLockedCourse() {
         return locked;
     }
-
     public void setLockedCourse(boolean isLocked) {
         this.locked = isLocked;
     }
@@ -202,7 +186,6 @@ public class Course {
     public MeetingMethod getMeetingMethod() {
         return meetingMethod;
     }
-
     public void setMeetingMethod(MeetingMethod meetingMethod) {
         this.meetingMethod = meetingMethod;
     }
@@ -210,7 +193,6 @@ public class Course {
     public String getCourseNotes() {
         return courseNotes;
     }
-
     public void setCourseNotes(String courseNotes) {
         this.courseNotes = courseNotes;
     }
@@ -218,19 +200,19 @@ public class Course {
     public CourseLength getCourseLength() {
         return courseLength;
     }
-
     public void setCourseLength(CourseLength courseLength) {
         this.courseLength = courseLength;
     }
 
-    public String getSchedulingConflicts() {
-        return schedulingConflicts;
+    public int getDurationMinutes() {
+        return (int)startTime.until(endTime, ChronoUnit.MINUTES);
+    }
+    public void setDurationMinutes(int minutes) {
+        endTime = startTime.plusMinutes(minutes);
     }
 
-    public void setSchedulingConflicts(String schedulingConflicts) {
-        this.schedulingConflicts = schedulingConflicts;
-    }
-
+    //</editor-fold>
+    
     public String getFormattedText(){
         if(facultyFname == null && facultyLname == null){
             return courseNumber;
@@ -243,6 +225,16 @@ public class Course {
     @Override
     public String toString(){
         return getFormattedText();
+    }
+    
+    @Override
+    public int compareTo(Course o) {
+        return startTime.compareTo(o.getStartTime());
+    }
+    
+    @Override
+    public Course clone() {
+        return new Course(courseTerm, courseNumber, courseTitle, COREdesignation, LARCdesignation, FYappropriate, facultyFname, facultyLname, adjunct, semesterHours, scheduledHours, maxCapacity, daysScheduled, LocalTime.of(startTime.getHour(), startTime.getMinute()), LocalTime.of(endTime.getHour(), endTime.getMinute()), locked, meetingMethod, courseNotes, courseLength);
     }
     
 }
