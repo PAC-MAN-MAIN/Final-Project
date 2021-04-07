@@ -5,19 +5,22 @@
  */
 package finalproject;
 
+import java.time.LocalTime;
+
 /**
  *
  * @author shado
  */
 enum MeetingMethod{
-    inPerson,
-    online,
-    hybrid;
+    LEC,
+    ONL,
+    TRVL,
+    LAB;
 }
 enum CourseLength{
-    halfSemester,
-    fullSemester,
-    JanuaryTerm;
+    firstHalf,
+    secondHalf,
+    fullSemester;
 }
 
 public class Course {
@@ -27,44 +30,41 @@ public class Course {
     private String COREdesignation; 
     private String LARCdesignation; 
     private boolean FYappropriate; 
-    private String FacultyLname; 
-    private String FacultyFname; 
-    private String adjunctTeacher;
+    private String facultyLname; 
+    private String facultyFname; 
+    private boolean adjunct;
     private double semesterHours;
     private double scheduledHours;
-    private double maxCapacity;
+    private int maxCapacity;
     private String daysScheduled;
-    private double startTime;
-    private double endTime;
-    private String lockedCourse;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private boolean locked;
     private MeetingMethod meetingMethod;
     private String courseNotes;
     private CourseLength courseLength;
     private String schedulingConflicts;
     
-    private String text = "";
-    
-    public Course(String Term, String CourseNum, String CourseTitle, String CORE, String LARC, boolean forFirstYears, String FacultyLastName, String FacultyFirstName, String AdjunctName, double SemesterHrs, double ScheduledHrs, double Capacity, String DaysOTW, double StartTime, double EndTime, String isLocked, MeetingMethod meetingMethod, String Notes, CourseLength courseLength, String Conflicts){
+    public Course(String Term, String CourseNum, String CourseTitle, String CORE, String LARC, boolean forFirstYears, String FacultyLastName, String FacultyFirstName, boolean Adjunct, double SemesterHrs, double ScheduledHrs, int Capacity, String DaysOTW, LocalTime StartTime, LocalTime EndTime, boolean isLocked, MeetingMethod meetingMethod, String Notes, CourseLength courseLength){
         courseTerm = Term;
         courseNumber = CourseNum;
         courseTitle = CourseTitle;
         COREdesignation = CORE;
         LARCdesignation = LARC;
         FYappropriate = forFirstYears;
-        FacultyLname = FacultyLastName;
-        FacultyFname = FacultyFirstName;
-        adjunctTeacher = AdjunctName;
+        facultyLname = FacultyLastName;
+        facultyFname = FacultyFirstName;
+        adjunct = Adjunct;
         semesterHours = SemesterHrs;
         scheduledHours = ScheduledHrs;
         maxCapacity = Capacity;
         daysScheduled = DaysOTW;
         startTime = StartTime;
         endTime = EndTime;
-        lockedCourse = isLocked;
+        locked = isLocked;
         meetingMethod = this.meetingMethod;
         courseNotes = Notes;
         courseLength = this.courseLength;
-        schedulingConflicts = Conflicts;
     }
     
 //    public Course(){
@@ -120,27 +120,27 @@ public class Course {
     }
 
     public String getFacultyLname() {
-        return FacultyLname;
+        return facultyLname;
     }
 
     public void setFacultyLname(String FacultyLname) {
-        this.FacultyLname = FacultyLname;
+        this.facultyLname = FacultyLname;
     }
 
     public String getFacultyFname() {
-        return FacultyFname;
+        return facultyFname;
     }
 
     public void setFacultyFname(String FacultyFname) {
-        this.FacultyFname = FacultyFname;
+        this.facultyFname = FacultyFname;
     }
 
-    public String getAdjunctTeacher() {
-        return adjunctTeacher;
+    public boolean getAdjunct() {
+        return adjunct;
     }
 
-    public void setAdjunctTeacher(String adjunctTeacher) {
-        this.adjunctTeacher = adjunctTeacher;
+    public void setAdjunct(boolean isAdjunct) {
+        this.adjunct = isAdjunct;
     }
 
     public double getSemesterHours() {
@@ -159,11 +159,11 @@ public class Course {
         this.scheduledHours = scheduledHours;
     }
 
-    public double getMaxCapacity() {
+    public int getMaxCapacity() {
         return maxCapacity;
     }
 
-    public void setMaxCapacity(double maxCapacity) {
+    public void setMaxCapacity(int maxCapacity) {
         this.maxCapacity = maxCapacity;
     }
 
@@ -175,28 +175,28 @@ public class Course {
         this.daysScheduled = daysScheduled;
     }
 
-    public double getStartTime() {
+    public LocalTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(double startTime) {
+    public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
 
-    public double getEndTime() {
+    public LocalTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(double endTime) {
+    public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
 
-    public String getLockedCourse() {
-        return lockedCourse;
+    public boolean getLockedCourse() {
+        return locked;
     }
 
-    public void setLockedCourse(String lockedCourse) {
-        this.lockedCourse = lockedCourse;
+    public void setLockedCourse(boolean isLocked) {
+        this.locked = isLocked;
     }
 
     public MeetingMethod getMeetingMethod() {
@@ -231,18 +231,18 @@ public class Course {
         this.schedulingConflicts = schedulingConflicts;
     }
 
-    public String formatText(){
-        if(getFacultyFname() == null && getFacultyLname() == null){
-            return text += getCourseNumber() + ", " + getAdjunctTeacher();
+    public String getFormattedText(){
+        if(facultyFname == null && facultyLname == null){
+            return courseNumber;
         }
         else{
-            return text += getCourseNumber() + ", " + getFacultyLname();
+            return  courseNumber + ", " + facultyLname;
         }
     }
     
     @Override
     public String toString(){
-        return formatText();
+        return getFormattedText();
     }
     
 }
