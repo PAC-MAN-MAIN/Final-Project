@@ -43,5 +43,7 @@
             <Font size="29.0" />
          </font>
       </Button>
+      <CheckBox fx:id="lockedCheck" alignment="BOTTOM_CENTER" contentDisplay="BOTTOM" layoutX="524.0" layoutY="147.0" mnemonicParsing="false" />
+      <Label layoutX="510.0" layoutY="172.0" text="Locked" />
    </children>
 </AnchorPane>

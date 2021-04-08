@@ -65,7 +65,33 @@ public class FXMLDocumentController implements Initializable {
     @FXML public void timeGridEventAction(ActionEvent e) {
         if(e.getSource() instanceof Button) {
             Button b = (Button) e.getSource();
-            System.out.println(b.getText());
+            switch(b.getId()) {
+                case "Monday": 
+                        mondayEvents.forEach((c) -> {
+                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
+                        });
+                    break;
+                case "Tuesday": 
+                        tuesdayEvents.forEach((c) -> {
+                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
+                        });
+                    break;
+                case "Wednesday": 
+                        wednesdayEvents.forEach((c) -> {
+                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
+                        });
+                    break;
+                case "Thursday": 
+                        thursdayEvents.forEach((c) -> {
+                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
+                        });
+                    break;
+                case "Friday": 
+                        fridayEvents.forEach((c) -> {
+                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
+                        });
+                    break;
+            }
         }
     }
     
@@ -234,7 +260,7 @@ public class FXMLDocumentController implements Initializable {
      * @param disabled - If the button should be disabled (true for fillers)
      * @return 
      */
-    private Button getTimeGridEvent(String text, int minutes, boolean disabled) {
+    private Button getTimeGridEvent(String text, int minutes, boolean disabled, boolean locked) {
         Button b = new Button();
         
         // Default settings
@@ -244,7 +270,7 @@ public class FXMLDocumentController implements Initializable {
         b.setFont(new Font(timeGridFontSize));
         b.setAlignment(Pos.TOP_LEFT);
         b.setOnAction((ae) -> timeGridEventAction(ae));
-        if(!disabled) b.setOnDragDetected((me) -> timeGridDragStart(me));
+        if(!disabled && !locked) b.setOnDragDetected((me) -> timeGridDragStart(me));
         
         // Custom settings
             double factor = minutes / 60d;
@@ -294,9 +320,9 @@ public class FXMLDocumentController implements Initializable {
             Course e = dayEvents.get(i);
             int distFromPrevious = (int)previous.getEndTime().until(e.getStartTime(), ChronoUnit.MINUTES);
             if(distFromPrevious > 0) {
-                dayChildren.add(getTimeGridEvent("", distFromPrevious, true));
+                dayChildren.add(getTimeGridEvent("", distFromPrevious, true, false));
             }
-            dayChildren.add(getTimeGridEvent(e.getFormattedText(), e.getDurationMinutes(), false));
+            dayChildren.add(getTimeGridEvent(e.getFormattedText(), e.getDurationMinutes(), false, e.getLockedCourse()));
             previous = e;
         }
         for(Node n : dayChildren) n.setId(id);
@@ -307,7 +333,7 @@ public class FXMLDocumentController implements Initializable {
     private final Stage courseCreatorStage = new Stage();
     private CreateClassFXMLController courseCreatorController;
     
-    private void openCourseCreator() {
+    public void openCourseCreator() {
         courseCreatorController.clearFields();
         courseCreatorStage.showAndWait();
         Course c = courseCreatorController.getCourse();
@@ -322,7 +348,7 @@ public class FXMLDocumentController implements Initializable {
     private final Stage courseEditorStage = new Stage();
     private EditClassFXMLController courseEditorController;
     
-    private void openCourseEditor(Course c) {
+    public void openCourseEditor(Course c) {
         courseEditorController.clearFields();
         courseEditorController.edit(c);
         courseEditorStage.showAndWait();
@@ -334,6 +360,18 @@ public class FXMLDocumentController implements Initializable {
         courseEditorStage.close();
     }
     
+    private final Stage courseViewerStage = new Stage();
+    private ViewClassFXMLController courseViewerController;
+    
+    public void openCourseViewer(Course c) {
+        courseViewerController.clearFields();
+        courseViewerController.view(c);
+        courseViewerStage.show();
+    }
+    public void closeCourseViewer() {
+        courseViewerStage.close();
+    }
+    
   //--Init-and-Init-Events------------------------------------------------
     
     @Override
@@ -341,6 +379,7 @@ public class FXMLDocumentController implements Initializable {
         initializePopups();
             courseCreatorStage.setTitle("Course Scheduler - Course Creator");
             courseEditorStage.setTitle("Course Scheduler - Course Editor");
+            courseViewerStage.setTitle("Course Scheduler - Course Viewer");
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -397,6 +436,16 @@ public class FXMLDocumentController implements Initializable {
             
             courseEditorStage.setScene(new Scene(root));
             courseEditorController.setParent(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("ViewClassFXML.fxml"));
+            Parent root = loader.load();
+            courseViewerController = loader.getController();
+            
+            courseViewerStage.setScene(new Scene(root));
+            courseViewerController.setParent(this);
         } catch (Exception e) {
             e.printStackTrace();
         }

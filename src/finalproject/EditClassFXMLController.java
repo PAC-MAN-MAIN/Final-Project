@@ -38,6 +38,7 @@ public class EditClassFXMLController implements Initializable {
     @FXML CheckBox firstYearCheck;
     @FXML ComboBox methodCombo;
     @FXML ComboBox lengthCombo;
+    @FXML CheckBox lockedCheck;
     
     private Course course = new Course();
     
@@ -59,6 +60,7 @@ public class EditClassFXMLController implements Initializable {
         course.setMeetingMethod((Course.MeetingMethod) methodCombo.getSelectionModel().getSelectedItem());
         course.setScheduledHours(Double.parseDouble(scheduledHourField.getText()));
         course.setSemesterHours(Double.parseDouble(semesterHourField.getText()));
+        course.setLockedCourse(lockedCheck.isSelected());
         
         close();
     }
@@ -113,6 +115,7 @@ public class EditClassFXMLController implements Initializable {
         firstYearCheck.setSelected(false);
         methodCombo.getSelectionModel().clearSelection();
         lengthCombo.getSelectionModel().clearSelection();
+        lockedCheck.setSelected(false);
         
         course = new Course();
     }
@@ -135,6 +138,7 @@ public class EditClassFXMLController implements Initializable {
         firstYearCheck.setSelected(c.isFYappropriate());
         methodCombo.getSelectionModel().select(c.getMeetingMethod());
         lengthCombo.getSelectionModel().select(c.getCourseLength());
+        lockedCheck.setSelected(c.getLockedCourse());
     }
     
   //----------------------------------------------------------------------------

@@ -234,7 +234,7 @@ public class Course implements Comparable<Course> {
     
     @Override
     public Course clone() {
-        return new Course(courseTerm, courseNumber, courseTitle, COREdesignation, LARCdesignation, FYappropriate, facultyFname, facultyLname, adjunct, semesterHours, scheduledHours, maxCapacity, daysScheduled, LocalTime.of(startTime.getHour(), startTime.getMinute()), LocalTime.of(endTime.getHour(), endTime.getMinute()), locked, meetingMethod, courseNotes, courseLength);
+        return new Course(courseTerm, courseNumber, courseTitle, COREdesignation, LARCdesignation, FYappropriate, facultyLname, facultyFname, adjunct, semesterHours, scheduledHours, maxCapacity, daysScheduled, LocalTime.of(startTime.getHour(), startTime.getMinute()), LocalTime.of(endTime.getHour(), endTime.getMinute()), locked, meetingMethod, courseNotes, courseLength);
     }
     
 }
