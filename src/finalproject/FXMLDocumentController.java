@@ -177,7 +177,7 @@ public class FXMLDocumentController implements Initializable {
             int hours = (int) (dropPos / 60) + minimumTime.getHour();
             int minutes = (int) (dropPos % 60);
             
-            System.out.println("Dropping from Unplaced at y" + dropPos + " (" + hours + ":" + minutes + ")");
+//            System.out.println("Dropping from Unplaced at y" + dropPos + " (" + hours + ":" + minutes + ")");
             
             c.setStartTime(LocalTime.of(hours, minutes));
             
@@ -221,6 +221,10 @@ public class FXMLDocumentController implements Initializable {
         openCourseCreator();
     }
     
+    @FXML public void unplacedListEditCourse() {
+        openCourseEditor(unplacedEvents.get(eventList.getSelectionModel().getSelectedIndex()));
+    }
+    
   //--Utiliy--------------------------------------------------------------------
     
     /**
@@ -259,6 +263,7 @@ public class FXMLDocumentController implements Initializable {
      * Updates the list of Unplaced Events according to the events in the unplacedEvents list
      */
     private void updateUnplacedEvents() {
+        unplacedEvents.sort((Course c1, Course c2) -> c1.getCourseNumber().compareTo(c2.getCourseNumber()));
         eventList.setItems(FXCollections.observableArrayList(unplacedEvents));
     }
     
@@ -305,18 +310,37 @@ public class FXMLDocumentController implements Initializable {
     private void openCourseCreator() {
         courseCreatorController.clearFields();
         courseCreatorStage.showAndWait();
+        Course c = courseCreatorController.getCourse();
+        if(c.getCourseNumber().equals("")) return;
+        unplacedEvents.add(c);
+        updateUnplacedEvents();
     }
-    
     public void closeCourseCreator() {
         courseCreatorStage.close();
+    }
+    
+    private final Stage courseEditorStage = new Stage();
+    private EditClassFXMLController courseEditorController;
+    
+    private void openCourseEditor(Course c) {
+        courseEditorController.clearFields();
+        courseEditorController.edit(c);
+        courseEditorStage.showAndWait();
+        
+        updateTimeGrid();
+        updateUnplacedEvents();
+    }
+    public void closeCourseEditor() {
+        courseEditorStage.close();
     }
     
   //--Init-and-Init-Events------------------------------------------------
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        initializeCourseCreator();
+        initializePopups();
             courseCreatorStage.setTitle("Course Scheduler - Course Creator");
+            courseEditorStage.setTitle("Course Scheduler - Course Editor");
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -353,10 +377,9 @@ public class FXMLDocumentController implements Initializable {
         unplacedEvents.add(c6);
         
         updateUnplacedEvents();
-        
     }
     
-    private void initializeCourseCreator() {
+    private void initializePopups() {
         try {
             FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("CreateClassFXML.fxml"));
             Parent root = loader.load();
@@ -364,6 +387,16 @@ public class FXMLDocumentController implements Initializable {
             
             courseCreatorStage.setScene(new Scene(root));
             courseCreatorController.setParent(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("EditClassFXML.fxml"));
+            Parent root = loader.load();
+            courseEditorController = loader.getController();
+            
+            courseEditorStage.setScene(new Scene(root));
+            courseEditorController.setParent(this);
         } catch (Exception e) {
             e.printStackTrace();
         }

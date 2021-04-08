@@ -14,25 +14,25 @@ import java.time.temporal.ChronoUnit;
  */
 
 public class Course implements Comparable<Course> {
-    private String courseTerm;
-    private String courseNumber;
-    private String courseTitle; 
-    private String COREdesignation; 
-    private String LARCdesignation; 
-    private boolean FYappropriate; 
-    private String facultyLname; 
-    private String facultyFname; 
-    private boolean adjunct;
-    private double semesterHours;
-    private double scheduledHours;
-    private int maxCapacity;
-    private String daysScheduled;
-    private LocalTime startTime;
-    private LocalTime endTime;
-    private boolean locked;
-    private MeetingMethod meetingMethod;
-    private String courseNotes;
-    private CourseLength courseLength;
+    private String courseTerm = "";
+    private String courseNumber = "";
+    private String courseTitle = "";
+    private String COREdesignation = ""; 
+    private String LARCdesignation = ""; 
+    private boolean FYappropriate = false; 
+    private String facultyLname = ""; 
+    private String facultyFname = ""; 
+    private boolean adjunct = false;
+    private double semesterHours = 0;
+    private double scheduledHours = 0;
+    private int maxCapacity = 0;
+    private String daysScheduled = "";
+    private LocalTime startTime = null;
+    private LocalTime endTime = null;
+    private boolean locked = false;
+    private MeetingMethod meetingMethod = null;
+    private CourseLength courseLength = null;
+    private String courseNotes = "";
     
     public enum MeetingMethod{
         LEC,

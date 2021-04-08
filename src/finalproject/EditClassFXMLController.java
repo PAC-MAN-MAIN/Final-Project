@@ -21,7 +21,7 @@ import javafx.scene.control.TextField;
  *
  * @author rewil
  */
-public class CreateClassFXMLController implements Initializable {
+public class EditClassFXMLController implements Initializable {
 
     @FXML TextField termField;
     @FXML TextField courseNumberField;
@@ -117,6 +117,26 @@ public class CreateClassFXMLController implements Initializable {
         course = new Course();
     }
     
+    public void edit(Course c){
+        course = c;
+        
+        termField.setText(c.getCourseTerm());
+        courseNumberField.setText(c.getCourseNumber());
+        courseTitleField.setText(c.getCourseTitle());
+        facultyFirstField.setText(c.getFacultyFname());
+        facultyLastField.setText(c.getFacultyLname());
+        coreField.setText(c.getCOREdesignation());
+        larcField.setText(c.getLARCdesignation());
+        capacityField.setText("" + c.getMaxCapacity());
+        semesterHourField.setText("" + c.getSemesterHours());
+        scheduledHourField.setText("" + c.getScheduledHours());
+        notesArea.setText(c.getCourseNotes());
+        adjunctCheck.setSelected(c.getAdjunct());
+        firstYearCheck.setSelected(c.isFYappropriate());
+        methodCombo.getSelectionModel().select(c.getMeetingMethod());
+        lengthCombo.getSelectionModel().select(c.getCourseLength());
+    }
+    
   //----------------------------------------------------------------------------
     
     private FXMLDocumentController parentController;
@@ -125,7 +145,7 @@ public class CreateClassFXMLController implements Initializable {
         parentController = p;
     }
         private void close() {
-            if(parentController != null) parentController.closeCourseCreator();
+            if(parentController != null) parentController.closeCourseEditor();
             else System.out.println("Parent is null");
         }
     public Course getCourse() {
