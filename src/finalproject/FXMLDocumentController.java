@@ -5,10 +5,13 @@
  */
 package finalproject;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -200,9 +203,9 @@ public class FXMLDocumentController implements Initializable {
         unplacedEvents.add(new TempEvent(LocalTime.of(0, 0), 0, "UPLD-001"));
         
         updateUnplacedEvents();
-        
+                 
     }
-    
+   
     private void initializeCourseCreator() {
         try {
             FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("CreateClassFXML.fxml"));
@@ -215,5 +218,5 @@ public class FXMLDocumentController implements Initializable {
             e.printStackTrace();
         }
     }
-    
+       
 }

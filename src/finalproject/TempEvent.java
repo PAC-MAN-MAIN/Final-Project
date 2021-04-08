@@ -35,9 +35,15 @@ public class TempEvent implements Comparable<TempEvent> {
         return startTime.compareTo(other.startTime);
     }
     
+     public String getDurationMinutesString() {
+        return getDurationMinutes()+ "";
+    }
+    
+    
     @Override
     public String toString() {
         return text;
     }
+    
 
 }
