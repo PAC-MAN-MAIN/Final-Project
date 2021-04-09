@@ -21,7 +21,7 @@ import javafx.scene.control.TextField;
  *
  * @author rewil
  */
-public class CreateClassFXMLController implements Initializable {
+public class EditClassFXMLController implements Initializable {
 
     @FXML TextField termField;
     @FXML TextField courseNumberField;
@@ -38,6 +38,7 @@ public class CreateClassFXMLController implements Initializable {
     @FXML CheckBox firstYearCheck;
     @FXML ComboBox methodCombo;
     @FXML ComboBox lengthCombo;
+    @FXML CheckBox lockedCheck;
     
     private Course course = new Course();
     
@@ -59,6 +60,7 @@ public class CreateClassFXMLController implements Initializable {
         course.setMeetingMethod((Course.MeetingMethod) methodCombo.getSelectionModel().getSelectedItem());
         course.setScheduledHours(Double.parseDouble(scheduledHourField.getText()));
         course.setSemesterHours(Double.parseDouble(semesterHourField.getText()));
+        course.setLockedCourse(lockedCheck.isSelected());
         
         close();
     }
@@ -113,8 +115,30 @@ public class CreateClassFXMLController implements Initializable {
         firstYearCheck.setSelected(false);
         methodCombo.getSelectionModel().clearSelection();
         lengthCombo.getSelectionModel().clearSelection();
+        lockedCheck.setSelected(false);
         
         course = new Course();
+    }
+    
+    public void edit(Course c){
+        course = c;
+        
+        termField.setText(c.getCourseTerm());
+        courseNumberField.setText(c.getCourseNumber());
+        courseTitleField.setText(c.getCourseTitle());
+        facultyFirstField.setText(c.getFacultyFname());
+        facultyLastField.setText(c.getFacultyLname());
+        coreField.setText(c.getCOREdesignation());
+        larcField.setText(c.getLARCdesignation());
+        capacityField.setText("" + c.getMaxCapacity());
+        semesterHourField.setText("" + c.getSemesterHours());
+        scheduledHourField.setText("" + c.getScheduledHours());
+        notesArea.setText(c.getCourseNotes());
+        adjunctCheck.setSelected(c.getAdjunct());
+        firstYearCheck.setSelected(c.isFYappropriate());
+        methodCombo.getSelectionModel().select(c.getMeetingMethod());
+        lengthCombo.getSelectionModel().select(c.getCourseLength());
+        lockedCheck.setSelected(c.getLockedCourse());
     }
     
   //----------------------------------------------------------------------------
@@ -125,7 +149,7 @@ public class CreateClassFXMLController implements Initializable {
         parentController = p;
     }
         private void close() {
-            if(parentController != null) parentController.closeCourseCreator();
+            if(parentController != null) parentController.closeCourseEditor();
             else System.out.println("Parent is null");
         }
     public Course getCourse() {
