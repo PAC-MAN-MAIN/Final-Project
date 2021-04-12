@@ -319,8 +319,8 @@ public class EditClassFXMLController implements Initializable {
             if(times.containsKey(Course.Day.M)) {
                 LocalTime[] dayTimes = times.get(Course.Day.M);
                 mondayCheck.setSelected(true);
-                startText = dayTimes[0].format(DateTimeFormatter.ofPattern("hh:mm"));
-                endText = dayTimes[1].format(DateTimeFormatter.ofPattern("hh:mm"));
+                startText = localTimeToString(dayTimes[0]);
+                endText = localTimeToString(dayTimes[1]);
                 durationText = "" + dayTimes[0].until(dayTimes[1], ChronoUnit.MINUTES);
             } else {
                 mondayCheck.setSelected(false);
@@ -334,8 +334,8 @@ public class EditClassFXMLController implements Initializable {
             if(times.containsKey(Course.Day.T)) {
                 LocalTime[] dayTimes = times.get(Course.Day.T);
                 tuesdayCheck.setSelected(true);
-                startText = dayTimes[0].format(DateTimeFormatter.ofPattern("hh:mm"));
-                endText = dayTimes[1].format(DateTimeFormatter.ofPattern("hh:mm"));
+                startText = localTimeToString(dayTimes[0]);
+                endText = localTimeToString(dayTimes[1]);
                 durationText = "" + dayTimes[0].until(dayTimes[1], ChronoUnit.MINUTES);
             } else {
                 tuesdayCheck.setSelected(false);
@@ -349,8 +349,8 @@ public class EditClassFXMLController implements Initializable {
             if(times.containsKey(Course.Day.W)) {
                 LocalTime[] dayTimes = times.get(Course.Day.W);
                 wednesdayCheck.setSelected(true);
-                startText = dayTimes[0].format(DateTimeFormatter.ofPattern("hh:mm"));
-                endText = dayTimes[1].format(DateTimeFormatter.ofPattern("hh:mm"));
+                startText = localTimeToString(dayTimes[0]);
+                endText = localTimeToString(dayTimes[1]);
                 durationText = "" + dayTimes[0].until(dayTimes[1], ChronoUnit.MINUTES);
             } else {
                 wednesdayCheck.setSelected(false);
@@ -364,8 +364,8 @@ public class EditClassFXMLController implements Initializable {
             if(times.containsKey(Course.Day.R)) {
                 LocalTime[] dayTimes = times.get(Course.Day.R);
                 thursdayCheck.setSelected(true);
-                startText = dayTimes[0].format(DateTimeFormatter.ofPattern("hh:mm"));
-                endText = dayTimes[1].format(DateTimeFormatter.ofPattern("hh:mm"));
+                startText = localTimeToString(dayTimes[0]);
+                endText = localTimeToString(dayTimes[1]);
                 durationText = "" + dayTimes[0].until(dayTimes[1], ChronoUnit.MINUTES);
             } else {
                 thursdayCheck.setSelected(false);
@@ -379,8 +379,8 @@ public class EditClassFXMLController implements Initializable {
             if(times.containsKey(Course.Day.F)) {
                 LocalTime[] dayTimes = times.get(Course.Day.F);
                 fridayCheck.setSelected(true);
-                startText = dayTimes[0].format(DateTimeFormatter.ofPattern("hh:mm"));
-                endText = dayTimes[1].format(DateTimeFormatter.ofPattern("hh:mm"));
+                startText = localTimeToString(dayTimes[0]);
+                endText = localTimeToString(dayTimes[1]);
                 durationText = "" + dayTimes[0].until(dayTimes[1], ChronoUnit.MINUTES);
             } else {
                 fridayCheck.setSelected(false);

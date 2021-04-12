@@ -25,7 +25,7 @@
       <Line endX="893.0" layoutX="424.0" layoutY="540.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
       <Line endX="893.0" layoutX="424.0" layoutY="600.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
       <Line endX="893.0" layoutX="424.0" layoutY="660.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <ListView fx:id="eventList" onDragDetected="#unplacedListDragStart" prefHeight="720.0" prefWidth="284.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="32.0">
+      <ListView fx:id="eventList" onDragDetected="#unplacedListDragStart" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="720.0" prefWidth="284.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="32.0">
          <contextMenu>
             <ContextMenu>
               <items>

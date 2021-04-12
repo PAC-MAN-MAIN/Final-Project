@@ -10,6 +10,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,7 +23,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -70,6 +73,21 @@ public class FXMLDocumentController implements Initializable {
             openCourseViewer(getPlacedEventFromText(b.getText()));
         }
     }
+    @FXML public void timeGridDeleteAction(Button source) {
+        Course.Day day = this.getDayFromId(source.getId());
+        for(Course c : placedEvents) {
+            if(c.getFormattedText().equals(source.getText())) {
+                c.removeDay(day);
+                if(c.getScheduledTimes().isEmpty()) {
+                    unplacedEvents.add(c);
+                    placedEvents.remove(c);
+                    return;
+                }
+            }
+        }
+        updateTimeGrid();
+        updateUnplacedEvents();
+    }
     
     @FXML public void timeGridDragStart(MouseEvent e) {
         if(e.getSource() instanceof Button) {
@@ -105,6 +123,10 @@ public class FXMLDocumentController implements Initializable {
         updateUnplacedEvents();
     }
         private void timeGridDrop(DragEvent e) {
+            if(e.getSource() instanceof ListView) {
+                toUnplacedListDrop(e);
+                return;
+            }
             double move = e.getY();
                 move = Math.round(move / minuteIncrementSnap) * minuteIncrementSnap;
             int hour = (int) (move / 60) + minimumTime.getHour();
@@ -163,6 +185,17 @@ public class FXMLDocumentController implements Initializable {
             placedEvents.add(c);
             unplacedEvents.remove(c);
         }
+        private void toUnplacedListDrop(DragEvent e) {
+            String text = ((Button) e.getGestureSource()).getText();
+            for(Course c : placedEvents) {
+                if(c.getFormattedText().equals(text)) {
+                    c.setScheduledTimes(new HashMap<>());
+                    unplacedEvents.add(c);
+                    placedEvents.remove(c);
+                    return;
+                }
+            }
+        }
                 
     @FXML public void timeGridDragAccept(DragEvent e) {
         e.acceptTransferModes(TransferMode.ANY);
@@ -197,6 +230,13 @@ public class FXMLDocumentController implements Initializable {
         b.setAlignment(Pos.TOP_LEFT);
         b.setOnAction((ae) -> timeGridEventAction(ae));
         if(!disabled && !locked) b.setOnDragDetected((me) -> timeGridDragStart(me));
+        if(!disabled) {
+            MenuItem deleteAction = new MenuItem("Delete Instance");
+                deleteAction.setOnAction((e) -> timeGridDeleteAction(b));
+            ContextMenu menu = new ContextMenu();
+                menu.getItems().add(deleteAction);
+            b.setOnContextMenuRequested((e) -> menu.show(b, e.getScreenX(), e.getScreenY()));
+        }
         
         // Custom settings
             double factor = minutes / 60d;
