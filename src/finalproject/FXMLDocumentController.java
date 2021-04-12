@@ -191,7 +191,7 @@ public class FXMLDocumentController implements Initializable {
         
         // Default settings
         b.setMaxWidth(Double.MAX_VALUE);
-        b.setMinHeight(0);
+        b.setMinHeight(3);
         b.setMaxHeight(Double.MAX_VALUE);
         b.setFont(new Font(timeGridFontSize));
         b.setAlignment(Pos.TOP_LEFT);
@@ -200,10 +200,8 @@ public class FXMLDocumentController implements Initializable {
         
         // Custom settings
             double factor = minutes / 60d;
-            double height = (hourHeight * factor);
+            double height = hourHeight * factor;
         b.setPrefHeight(height);
-            b.setMinHeight(height);
-            b.setMaxHeight(height);
         b.setText(text);
         b.setDisable(disabled);
         b.setVisible(!disabled);
@@ -302,6 +300,14 @@ public class FXMLDocumentController implements Initializable {
         courseEditorController.clearFields();
         courseEditorController.edit(c);
         courseEditorStage.showAndWait();
+        
+        if(unplacedEvents.contains(c) && !c.getScheduledTimes().isEmpty()) {
+            unplacedEvents.remove(c);
+            placedEvents.add(c);
+        } else if (placedEvents.contains(c) && c.getScheduledTimes().isEmpty()) {
+            placedEvents.remove(c);
+            unplacedEvents.add(c);
+        }
         
         updateTimeGrid();
         updateUnplacedEvents();
