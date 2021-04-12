@@ -52,11 +52,13 @@ public class FXMLDocumentController implements Initializable {
     @FXML VBox thursdayBox;
     @FXML VBox fridayBox;
     
-    private ArrayList<Course> mondayEvents = new ArrayList<>();
-    private ArrayList<Course> tuesdayEvents = new ArrayList<>();
-    private ArrayList<Course> wednesdayEvents = new ArrayList<>();
-    private ArrayList<Course> thursdayEvents = new ArrayList<>();
-    private ArrayList<Course> fridayEvents = new ArrayList<>();
+//    private ArrayList<Course> mondayEvents = new ArrayList<>();
+//    private ArrayList<Course> tuesdayEvents = new ArrayList<>();
+//    private ArrayList<Course> wednesdayEvents = new ArrayList<>();
+//    private ArrayList<Course> thursdayEvents = new ArrayList<>();
+//    private ArrayList<Course> fridayEvents = new ArrayList<>();
+    
+    private ArrayList<Course> placedEvents = new ArrayList<>();
     
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
     
@@ -65,33 +67,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML public void timeGridEventAction(ActionEvent e) {
         if(e.getSource() instanceof Button) {
             Button b = (Button) e.getSource();
-            switch(b.getId()) {
-                case "Monday": 
-                        mondayEvents.forEach((c) -> {
-                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
-                        });
-                    break;
-                case "Tuesday": 
-                        tuesdayEvents.forEach((c) -> {
-                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
-                        });
-                    break;
-                case "Wednesday": 
-                        wednesdayEvents.forEach((c) -> {
-                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
-                        });
-                    break;
-                case "Thursday": 
-                        thursdayEvents.forEach((c) -> {
-                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
-                        });
-                    break;
-                case "Friday": 
-                        fridayEvents.forEach((c) -> {
-                            if(c.getFormattedText().equals(b.getText())) openCourseViewer(c);
-                        });
-                    break;
-            }
+            openCourseViewer(getPlacedEventFromText(b.getText()));
         }
     }
     
@@ -135,67 +111,28 @@ public class FXMLDocumentController implements Initializable {
             int minute = (int) (move % 60);
 
             Button source = (Button)e.getGestureSource();
-            switch(source.getId()) {
-                case "Monday": findAndShiftEvent(source, mondayEvents, hour, minute);
-                    break;
-                case "Tuesday": findAndShiftEvent(source, tuesdayEvents, hour, minute);
-                    break;
-                case "Wednesday": findAndShiftEvent(source, wednesdayEvents, hour, minute);
-                    break;
-                case "Thursday": findAndShiftEvent(source, thursdayEvents, hour, minute);
-                    break;
-                case "Friday": findAndShiftEvent(source, fridayEvents, hour, minute);
-                    break;
-            }
+            Course c = getPlacedEventFromText(source.getText());
+                if(c == null) return;
+            Course.Day fromDay = getDayFromId(source.getId());
+                if(fromDay == null) return;
+            c.setScheuledTimes(fromDay, new LocalTime[]{LocalTime.of(hour, minute), LocalTime.of(hour, minute).plusMinutes(c.getDurationMinutes(fromDay))});
 
             VBox destination = (VBox) e.getSource();
             if(!source.getId().equals(destination.getId())) {
-                switch(destination.getId()) {
-                    case "Monday": shiftEventDay(source, mondayEvents);
-                        break;
-                    case "Tuesday": shiftEventDay(source, tuesdayEvents);
-                        break;
-                    case "Wednesday": shiftEventDay(source, wednesdayEvents);
-                        break;
-                    case "Thursday": shiftEventDay(source, thursdayEvents);
-                        break;
-                    case "Friday": shiftEventDay(source, fridayEvents);
-                        break;
-                }
+                Course.Day toDay = getDayFromId(destination.getId());
+                shiftEventDay(fromDay, toDay, c);
             }
         }
-            private void findAndShiftEvent(Button source, ArrayList<Course> dayEvents, int hour, int minute) {
-                for(Course c : dayEvents) {
-                    if(c.getFormattedText().equals(source.getText())) {
-                        int duration = c.getDurationMinutes();
-                        c.setStartTime(LocalTime.of(hour, minute));
-                        c.setDurationMinutes(duration);
-                    }
+            private Course getPlacedEventFromText(String text) {
+                for(Course c : placedEvents) {
+                    if(c.getFormattedText().equals(text)) return c;
                 }
+                return null;
             }
-            private void shiftEventDay(Button source, ArrayList<Course> destination) {
-                switch(source.getId()) {
-                    case "Monday": destination.add(removeAndReturnEvent(source.getText(), mondayEvents));
-                        break;
-                    case "Tuesday": destination.add(removeAndReturnEvent(source.getText(), tuesdayEvents));
-                        break;
-                    case "Wednesday": destination.add(removeAndReturnEvent(source.getText(), wednesdayEvents));
-                        break;
-                    case "Thursday": destination.add(removeAndReturnEvent(source.getText(), thursdayEvents));
-                        break;
-                    case "Friday": destination.add(removeAndReturnEvent(source.getText(), fridayEvents));
-                        break;
-                }   
+            private void shiftEventDay(Course.Day from, Course.Day to, Course c) {
+                c.setScheuledTimes(to, c.getScheduledTimes(from));
+                c.removeDay(from);
             }
-                private Course removeAndReturnEvent(String match, ArrayList<Course> dayEvents) {
-                    for(Course c : dayEvents) {
-                        if(c.getFormattedText().equals(match)) {
-                            dayEvents.remove(c);
-                            return c;
-                        }
-                    }
-                    return null;
-                }
         private void unplacedListDrop(DragEvent e) {
             Course c = (Course)eventList.getSelectionModel().getSelectedItems().get(0);
             int dropPos = (int) e.getY();
@@ -205,36 +142,25 @@ public class FXMLDocumentController implements Initializable {
             
 //            System.out.println("Dropping from Unplaced at y" + dropPos + " (" + hours + ":" + minutes + ")");
             
-            c.setStartTime(LocalTime.of(hours, minutes));
-            
-            switch(((VBox)e.getSource()).getId()) {
-                case "Monday": {
-                    c.setDurationMinutes(AppConfig.DefaultMondayDurationMinutes);
-                    mondayEvents.add(c);
-                }
+            int duration = 0;
+            Course.Day day = getDayFromId(((VBox)e.getSource()).getId());
+                if(day == null) return;
+            switch(day) {
+                case M: duration = AppConfig.DefaultMondayDurationMinutes;
                     break;
-                case "Tuesday":{
-                    c.setDurationMinutes(AppConfig.DefaultTuesdayDurationMinutes);
-                    tuesdayEvents.add(c);
-                } 
+                case T: duration = AppConfig.DefaultTuesdayDurationMinutes;
                     break;
-                case "Wednesday": {
-                    c.setDurationMinutes(AppConfig.DefaultWednesdayDurationMinutes);
-                    wednesdayEvents.add(c);
-                }
+                case W: duration = AppConfig.DefaultWednesdayDurationMinutes;
                     break;
-                case "Thursday": {
-                    c.setDurationMinutes(AppConfig.DefaultThursdayDurationMinutes);
-                    thursdayEvents.add(c);
-                }
+                case R: duration = AppConfig.DefaultThursdayDurationMinutes;
                     break;
-                case "Friday": {
-                    c.setDurationMinutes(AppConfig.DefaultFridayDurationMinutes);
-                    fridayEvents.add(c);
-                }
+                case F: duration = AppConfig.DefaultFridayDurationMinutes;
                     break;
             }
             
+            c.setStartTime(day, LocalTime.of(hours, minutes));
+            c.setDurationMinutes(day, duration);
+            placedEvents.add(c);
             unplacedEvents.remove(c);
         }
                 
@@ -294,14 +220,39 @@ public class FXMLDocumentController implements Initializable {
     }
     
     /**
+     * Returns the Course.Day with a value equal to the id. If no day matches the id, this returns null.
+     * @param id
+     * @return 
+     */
+    private Course.Day getDayFromId(String id) {
+        for(Course.Day d : Course.Day.values()) {
+            if(d.getValue().equals(id)) return d;
+        }
+        return null;
+    }
+    
+    /**
      * Updates the Time Grid according to the events in the (day)Events ArrayLists
      */
     private void updateTimeGrid() {
-        updateDayTimeGrid(mondayBox, mondayEvents, "Monday");
-        updateDayTimeGrid(tuesdayBox, tuesdayEvents, "Tuesday");
-        updateDayTimeGrid(wednesdayBox, wednesdayEvents, "Wednesday");
-        updateDayTimeGrid(thursdayBox, thursdayEvents, "Thursday");
-        updateDayTimeGrid(fridayBox, fridayEvents, "Friday");
+        for(Course.Day d : Course.Day.values()) {
+            ArrayList<Course> dayEvents = new ArrayList<>();
+            for(Course c : placedEvents) {
+                if(c.getScheduledTimes(d) != null) dayEvents.add(c);
+            }
+            switch(d) {
+                case M: updateDayTimeGrid(d, mondayBox, dayEvents);
+                    break;
+                case T: updateDayTimeGrid(d, tuesdayBox, dayEvents);
+                    break;
+                case W: updateDayTimeGrid(d, wednesdayBox, dayEvents);
+                    break;
+                case R: updateDayTimeGrid(d, thursdayBox, dayEvents);
+                    break;
+                case F: updateDayTimeGrid(d, fridayBox, dayEvents);
+                    break;
+            }
+        }
     }
     
     /**
@@ -309,23 +260,22 @@ public class FXMLDocumentController implements Initializable {
      * @param dayBox
      * @param dayEvents 
      */
-    private void updateDayTimeGrid(VBox dayBox, ArrayList<Course> dayEvents, String id) {
-        dayEvents.sort(Comparator.naturalOrder());
+    private void updateDayTimeGrid(Course.Day d, VBox dayBox, ArrayList<Course> dayEvents) {
+        dayEvents.sort((Course c1, Course c2) -> c1.getStartTime(d).compareTo(c2.getStartTime(d)));
         ObservableList<Node> dayChildren = dayBox.getChildren();
         dayChildren.clear();
-        Course previous = new Course();
-            previous.setStartTime(minimumTime);
-            previous.setEndTime(minimumTime);
+        LocalTime prevEnd = minimumTime;
+        
         for(int i = 0; i < dayEvents.size(); ++i) {
             Course e = dayEvents.get(i);
-            int distFromPrevious = (int)previous.getEndTime().until(e.getStartTime(), ChronoUnit.MINUTES);
+            int distFromPrevious = (int)prevEnd.until(e.getStartTime(d), ChronoUnit.MINUTES);
             if(distFromPrevious > 0) {
                 dayChildren.add(getTimeGridEvent("", distFromPrevious, true, false));
             }
-            dayChildren.add(getTimeGridEvent(e.getFormattedText(), e.getDurationMinutes(), false, e.getLockedCourse()));
-            previous = e;
+            dayChildren.add(getTimeGridEvent(e.getFormattedText(), e.getDurationMinutes(d), false, e.getLockedCourse()));
+            prevEnd = e.getEndTime(d);
         }
-        for(Node n : dayChildren) n.setId(id);
+        for(Node n : dayChildren) n.setId(d.getValue());
     }
     
   //--Window--------------------------------------------------------------------
@@ -390,23 +340,41 @@ public class FXMLDocumentController implements Initializable {
 //        }
         
         //My schedule
-        Course c1 = new Course("", "INTD-405", "", "", "", false, "Smith", "", false, 0, 0, 0, "", LocalTime.of(15, 15), LocalTime.of(16, 5), false, null, "", null);
-        Course c2 = new Course("", "PHIL-215", "", "", "", false, "Krull", "", false, 0, 0, 0, "", LocalTime.of(12, 45), LocalTime.of(13, 35), false, null, "", null);
-        Course c3 = new Course("", "MUS-131", "", "", "", false, "Lynn", "", false, 0, 0, 0, "", LocalTime.of(17, 30), LocalTime.of(18, 20), false, null, "", null);
-        Course c4 = new Course("", "MUS-130", "", "", "", false, "Lynn", "", false, 0, 0, 0, "", LocalTime.of(16, 30), LocalTime.of(17, 20), false, null, "", null);
-        Course c5 = new Course("", "CPTR-422", "", "", "", false, "Mitchell", "", false, 0, 0, 0, "", LocalTime.of(11, 45), LocalTime.of(12, 35), false, null, "", null);
-        mondayEvents.add(c1);
-        mondayEvents.add(c2);
-        tuesdayEvents.add(c3);
-        mondayEvents.add(c4);
-        mondayEvents.add(c5);
-        mondayEvents.forEach((c) -> {
-            wednesdayEvents.add(c.clone());
-            fridayEvents.add(c.clone());
-        });
-        tuesdayEvents.forEach((c) -> {
-            thursdayEvents.add(c.clone());
-        });
+        Course c1 = new Course();
+            c1.setCourseNumber("INTD-405");
+            c1.setFacultyLname("Smith");
+            c1.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+            c1.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+            c1.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+        Course c2 = new Course();
+            c2.setCourseNumber("PHIL-215");
+            c2.setFacultyLname("Krull");
+            c2.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+            c2.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+            c2.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+        Course c3 = new Course();
+            c3.setCourseNumber("MUS-131");
+            c3.setFacultyLname("Lynn");
+            c3.setScheuledTimes(Course.Day.T, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
+            c3.setScheuledTimes(Course.Day.R, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
+        Course c4 = new Course();
+            c4.setCourseNumber("MUS-130");
+            c4.setFacultyLname("Lynn");
+            c4.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+            c4.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+            c4.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+        Course c5 = new Course();
+            c5.setCourseNumber("CPTR-422");
+            c5.setFacultyLname("Mitchell");
+            c5.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+            c5.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+            c5.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+        
+        placedEvents.add(c1);
+        placedEvents.add(c2);
+        placedEvents.add(c3);
+        placedEvents.add(c4);
+        placedEvents.add(c5);
         
         updateTimeGrid();
         
