@@ -236,6 +236,27 @@ public class Course implements Comparable<Course> {
 
     //</editor-fold>
     
+    /**
+     * Checks to see if a given course overlaps with this course on a given day
+     * @param c
+     * @param d
+     * @return 
+     */
+    public boolean conflictsWith(Course c, Day d) {
+        LocalTime start1 = getStartTime(d);
+        LocalTime start2 = c.getStartTime(d);
+        LocalTime end1 = getEndTime(d);
+        LocalTime end2 = c.getEndTime(d);
+        
+        boolean out = false;
+        
+        if(start1.isBefore(start2) && !end1.minusMinutes(1).isBefore(start2)) out = true;
+        else if(start2.isBefore(start1) && !end2.minusMinutes(1).isBefore(start1)) out = true;
+        
+        
+        return out;
+    }
+    
     public String getFormattedText(){
         if(facultyFname == null && facultyLname == null){
             return courseNumber;
