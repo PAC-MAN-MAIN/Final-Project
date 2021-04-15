@@ -41,9 +41,7 @@ import javafx.stage.Stage;
  */
 public class FXMLDocumentController implements Initializable {
     
-    private final double hourHeight = 60.0;
     private final double minuteIncrementSnap = 5.0;
-    private final double timeGridFontSize = 15.0;
     
     private final LocalTime minimumTime = LocalTime.of(8, 0);
     private final LocalTime maximumTime = LocalTime.of(20, 0);
@@ -62,8 +60,9 @@ public class FXMLDocumentController implements Initializable {
 //    private ArrayList<Course> fridayEvents = new ArrayList<>();
     
     private ArrayList<Course> placedEvents = new ArrayList<>();
-    
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
+    
+    private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
     
   //--GUI-Actions---------------------------------------------------------------
     
@@ -213,43 +212,6 @@ public class FXMLDocumentController implements Initializable {
   //--Utiliy--------------------------------------------------------------------
     
     /**
-     * Provides a button which can be put into a day's VBox to represent an event
-     * @param text The text that will show up on the button
-     * @param minutes The length of time the event lasts
-     * @param disabled - If the button should be disabled (true for fillers)
-     * @return 
-     */
-    private Button getTimeGridEvent(String text, int minutes, boolean disabled, boolean locked) {
-        Button b = new Button();
-        
-        // Default settings
-        b.setMaxWidth(Double.MAX_VALUE);
-        b.setMinHeight(3);
-        b.setMaxHeight(Double.MAX_VALUE);
-        b.setFont(new Font(timeGridFontSize));
-        b.setAlignment(Pos.TOP_LEFT);
-        b.setOnAction((ae) -> timeGridEventAction(ae));
-        if(!disabled && !locked) b.setOnDragDetected((me) -> timeGridDragStart(me));
-        if(!disabled) {
-            MenuItem deleteAction = new MenuItem("Delete Instance");
-                deleteAction.setOnAction((e) -> timeGridDeleteAction(b));
-            ContextMenu menu = new ContextMenu();
-                menu.getItems().add(deleteAction);
-            b.setOnContextMenuRequested((e) -> menu.show(b, e.getScreenX(), e.getScreenY()));
-        }
-        
-        // Custom settings
-            double factor = minutes / 60d;
-            double height = hourHeight * factor;
-        b.setPrefHeight(height);
-        b.setText(text);
-        b.setDisable(disabled);
-        b.setVisible(!disabled);
-        
-        return b;
-    }
-    
-    /**
      * Updates the list of Unplaced Events according to the events in the unplacedEvents list
      */
     private void updateUnplacedEvents() {
@@ -302,18 +264,8 @@ public class FXMLDocumentController implements Initializable {
         dayEvents.sort((Course c1, Course c2) -> c1.getStartTime(d).compareTo(c2.getStartTime(d)));
         ObservableList<Node> dayChildren = dayBox.getChildren();
         dayChildren.clear();
-        LocalTime prevEnd = minimumTime;
         
-        for(int i = 0; i < dayEvents.size(); ++i) {
-            Course e = dayEvents.get(i);
-            int distFromPrevious = (int)prevEnd.until(e.getStartTime(d), ChronoUnit.MINUTES);
-            if(distFromPrevious > 0) {
-                dayChildren.add(getTimeGridEvent("", distFromPrevious, true, false));
-            }
-            dayChildren.add(getTimeGridEvent(e.getFormattedText(), e.getDurationMinutes(d), false, e.getLockedCourse()));
-            prevEnd = e.getEndTime(d);
-        }
-        for(Node n : dayChildren) n.setId(d.getValue());
+        dayChildren.addAll(tgf.formatDay(d, dayEvents));
     }
     
   //--Window--------------------------------------------------------------------
