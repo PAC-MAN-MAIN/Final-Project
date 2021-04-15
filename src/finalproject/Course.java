@@ -5,6 +5,8 @@
  */
 package finalproject;
 
+import java.time.format.DateTimeFormatter;
+
 /**
  *
  * @author shado
@@ -228,7 +230,6 @@ public class Course {
     public void setSchedulingConflicts(String schedulingConflicts) {
         this.schedulingConflicts = schedulingConflicts;
     }
-
     
     
 }

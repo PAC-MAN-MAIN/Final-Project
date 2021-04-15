@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+
 /**
  *
  * @author rewil
@@ -32,6 +33,8 @@ public class FinalProject extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        CSVConverter underrated = new CSVConverter();
+        underrated.writeTextFile("testing| my name is rohan","C:\\Users\\lambo\\OneDrive\\Final-Project","test.csv");
         launch(args);
         //This is Sara .... 
     }

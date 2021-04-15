@@ -5,10 +5,17 @@
  */
 package finalproject;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+
 /**
  *
  * @author lambo
  */
-public class ClassConverter {
+public class ScheduleConverter {
     
+    public void printCSV(ArrayList<Course>... lists){
+
+    }
+
 }
