@@ -26,6 +26,7 @@ public class CSVConverter {
  */
     public boolean writeTextFile(String text,String filePath, String fileDestination) {
         if(!fileDestination.endsWith(".csv"))fileDestination+=".csv";
+        if(!filePath.endsWith("\\"))filePath+="\\";
         try {
             Files.createDirectories(Paths.get(filePath));
             
