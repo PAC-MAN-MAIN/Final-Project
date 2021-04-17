@@ -22,7 +22,7 @@ public class SaveFile implements Serializable{
     private ArrayList<Course> placedEvents;
     private ArrayList<Course> unPlacedEvents;
     
-    private final String filetype = ".ScheduleSaveFile";
+    public static final String filetype = ".ScheduleSaveFile";
     
     
     public SaveFile(ArrayList<Course> placedEvents, ArrayList<Course> unplacedEvents) {
@@ -39,25 +39,22 @@ public class SaveFile implements Serializable{
     }
     
     /**
-     * Do not include filetype at end of filename
+     * Include filename and filetype at end of filepath
      * @param object
      * @param name
      * @return 
      */
-    public boolean writeObject(String filepath, String filename) {
-        if(!filepath.endsWith("\\")) filepath += "\\";
+    public boolean writeFile(String filepath) {
         try {
             File file = new File(filepath);
-            if(file.exists()) {
-                Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-                    a.setHeaderText("File Already Exists");
-                    a.setContentText("This will overwrite the existing save file");
-                    a.showAndWait();
-                if(a.getResult().equals(ButtonType.CANCEL)) return false;
-            }
-            file.mkdirs();
-            file = new File(filepath+filename+filetype);
-//            file.createNewFile();
+//            if(file.exists()) {
+//                Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+//                    a.setHeaderText("File Already Exists");
+//                    a.setContentText("This will overwrite the existing save file");
+//                    a.showAndWait();
+//                if(a.getResult().equals(ButtonType.CANCEL)) return false;
+//            }
+            file.createNewFile();
             FileOutputStream f = new FileOutputStream(file);
             ObjectOutputStream o = new ObjectOutputStream(f);
             

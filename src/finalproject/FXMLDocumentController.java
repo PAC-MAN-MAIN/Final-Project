@@ -5,6 +5,7 @@
  */
 package finalproject;
 
+import java.io.File;
 import java.net.URL;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -33,6 +34,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 /**
@@ -53,16 +57,13 @@ public class FXMLDocumentController implements Initializable {
     @FXML VBox thursdayBox;
     @FXML VBox fridayBox;
     
-//    private ArrayList<Course> mondayEvents = new ArrayList<>();
-//    private ArrayList<Course> tuesdayEvents = new ArrayList<>();
-//    private ArrayList<Course> wednesdayEvents = new ArrayList<>();
-//    private ArrayList<Course> thursdayEvents = new ArrayList<>();
-//    private ArrayList<Course> fridayEvents = new ArrayList<>();
-    
     private ArrayList<Course> placedEvents = new ArrayList<>();
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
     
     private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
+    
+    private String saveFilepath = "";
+    private ExtensionFilter saveExtension = new ExtensionFilter("Save File", "*" + SaveFile.filetype);
     
   //--GUI-Actions---------------------------------------------------------------
     
@@ -207,6 +208,55 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML public void unplacedListEditCourse() {
         openCourseEditor(unplacedEvents.get(eventList.getSelectionModel().getSelectedIndex()));
+    }
+    
+    @FXML public void menuSaveAction() {
+        if(saveFilepath.isEmpty()) {
+            menuSaveAsAction();
+            return;
+        }
+        saveAction();
+    }
+    @FXML public void menuSaveAsAction() {
+        FileChooser fc = new FileChooser();
+            if(!saveFilepath.isEmpty()) {
+                fc.setInitialDirectory(new File(saveFilepath.replaceAll("[a-z,A-Z]*" + SaveFile.filetype, "")));
+                fc.setInitialFileName(saveFilepath.replaceAll(".*\\\\", ""));
+            }
+            fc.getExtensionFilters().add(saveExtension);
+        File file = fc.showSaveDialog(new Stage());
+            if(file == null) return;
+            saveFilepath = file.getAbsolutePath();
+        
+        saveAction();
+    }
+        private void saveAction() {
+            SaveFile sf = new SaveFile(placedEvents, unplacedEvents);
+            sf.writeFile(saveFilepath);
+        }
+    @FXML public void menuLoadAction() {
+        FileChooser fc = new FileChooser();
+            if(!saveFilepath.isEmpty()) {
+                fc.setInitialDirectory(new File(saveFilepath.replaceAll("[a-z,A-Z]*" + SaveFile.filetype, "")));
+                fc.setInitialFileName(saveFilepath.replaceAll(".*\\\\", ""));
+            }
+            fc.getExtensionFilters().add(saveExtension);
+        File file = fc.showOpenDialog(new Stage());
+            if(file == null) return;
+            saveFilepath = file.getAbsolutePath();
+            
+            loadAction();
+    }
+        private void loadAction() {
+            SaveFile sf = SaveFile.readObject(saveFilepath);
+            this.placedEvents = sf.getPlacedEvents();
+            this.unplacedEvents = sf.getUnPlacedEvents();
+            
+            updateTimeGrid();
+            updateUnplacedEvents();
+        }
+    @FXML public void menuExportAction() {
+        System.out.println("Export to CSV Action called");
     }
     
   //--Utiliy--------------------------------------------------------------------
