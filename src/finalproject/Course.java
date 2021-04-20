@@ -5,6 +5,7 @@
  */
 package finalproject;
 
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
@@ -15,7 +16,8 @@ import java.util.Map;
  * @author shado
  */
 
-public class Course implements Comparable<Course> {
+public class Course implements Comparable<Course>,Serializable {
+    
     private String courseTerm = "";
     private String courseNumber = "";
     private String courseTitle = "";
