@@ -46,7 +46,7 @@ public class Course implements Comparable<Course> {
     public enum CourseLength{
         FirstHalf,
         SecondHalf,
-        FullSemester;
+        FullSemester; 
     }
     public enum Day{
         M("Monday"),

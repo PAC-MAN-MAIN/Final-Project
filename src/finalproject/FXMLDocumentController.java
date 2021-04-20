@@ -382,6 +382,15 @@ public class FXMLDocumentController implements Initializable {
         unplacedEvents.add(c6);
         
         updateUnplacedEvents();
+        /*
+        Ebgin Testing String Form 
+        */
+        CSVFile test = new CSVFile(placedEvents);
+        System.out.println(test.CoursestoCSV(placedEvents));
+        /*
+        End Testing string form
+        */
+        
     }
     
     private void initializePopups() {
