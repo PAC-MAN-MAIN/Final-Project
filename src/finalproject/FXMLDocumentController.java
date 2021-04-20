@@ -61,6 +61,7 @@ public class FXMLDocumentController implements Initializable {
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
     
     private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
+    private FilterGUI filter = new FilterGUI();
     
     private String saveFilepath = "";
     private ExtensionFilter saveExtension = new ExtensionFilter("Save File", "*" + SaveFile.filetype);
@@ -259,6 +260,10 @@ public class FXMLDocumentController implements Initializable {
         System.out.println("Export to CSV Action called");
     }
     
+    @FXML public void changeFilterAction() {
+        this.openFilterGUIViewer();
+    }
+    
   //--Utiliy--------------------------------------------------------------------
     
     /**
@@ -288,7 +293,7 @@ public class FXMLDocumentController implements Initializable {
         for(Course.Day d : Course.Day.values()) {
             ArrayList<Course> dayEvents = new ArrayList<>();
             for(Course c : placedEvents) {
-                if(c.getScheduledTimes(d) != null) dayEvents.add(c);
+                if(c.getScheduledTimes(d) != null && filter.matches(c)) dayEvents.add(c);
             }
             switch(d) {
                 case M: updateDayTimeGrid(d, mondayBox, dayEvents);
@@ -370,6 +375,18 @@ public class FXMLDocumentController implements Initializable {
         courseViewerStage.close();
     }
     
+    private final Stage filterGUIStage = new Stage();
+    private FilterGUIController filterGUIController;
+    
+    public void openFilterGUIViewer() {
+        filterGUIController.setAtttributes(placedEvents, filter);
+        filterGUIStage.showAndWait();
+        updateTimeGrid();
+    }
+    public void closeFilterGUI() {
+        filterGUIStage.close();
+    }
+    
   //--Init-and-Init-Events------------------------------------------------
     
     @Override
@@ -378,6 +395,7 @@ public class FXMLDocumentController implements Initializable {
             courseCreatorStage.setTitle("Course Scheduler - Course Creator");
             courseEditorStage.setTitle("Course Scheduler - Course Editor");
             courseViewerStage.setTitle("Course Scheduler - Course Viewer");
+            filterGUIStage.setTitle("Course Scheduler - Filter Editor");
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -414,6 +432,7 @@ public class FXMLDocumentController implements Initializable {
         Course c5 = new Course();
             c5.setCourseNumber("CPTR-422");
             c5.setFacultyLname("Mitchell");
+            c5.setFacultyFname("Robin");
             c5.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
             c5.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
             c5.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
@@ -462,6 +481,16 @@ public class FXMLDocumentController implements Initializable {
             
             courseViewerStage.setScene(new Scene(root));
             courseViewerController.setParent(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("FilterGUI.fxml"));
+            Parent root = loader.load();
+            filterGUIController = loader.getController();
+            
+            filterGUIStage.setScene(new Scene(root));
+            filterGUIController.setStage(filterGUIStage);
         } catch (Exception e) {
             e.printStackTrace();
         }

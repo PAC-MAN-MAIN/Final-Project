@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" fx:id="pane" prefHeight="51.0" prefWidth="458.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="finalproject.FilterGUIController">
+   <children>
+      <ComboBox fx:id="attributeCombo" layoutX="24.0" layoutY="10.0" onAction="#pickAttributeAction" prefHeight="31.0" prefWidth="181.0" promptText="Pick an Attribute" />
+      <ComboBox fx:id="filterCombo" disable="true" layoutX="244.0" layoutY="10.0" onAction="#pickFilterAction" prefHeight="31.0" prefWidth="150.0" promptText="Pick a Filter" />
+      <Button fx:id="removeButton" disable="true" layoutX="412.0" layoutY="10.0" mnemonicParsing="false" onAction="#removeFilterAction" prefHeight="31.0" prefWidth="30.0" text="X" />
+   </children>
+</AnchorPane>
