@@ -11,7 +11,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 
 /**
  *

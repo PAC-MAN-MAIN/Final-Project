@@ -8,9 +8,7 @@ package finalproject;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -19,22 +17,17 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -64,7 +57,12 @@ public class FXMLDocumentController implements Initializable {
     private FilterGUI filter = new FilterGUI();
     
     private String saveFilepath = "";
-    private ExtensionFilter saveExtension = new ExtensionFilter("Save File", "*" + SaveFile.filetype);
+    private String saveFilename = "";
+    private ExtensionFilter saveExtension = new ExtensionFilter("Save Files", "*" + SaveFile.filetype);
+    private String exportFilepath = "";
+    private String exportFilename = "";
+    private CSVCreator csv = new CSVCreator();
+    private ExtensionFilter exportExtension = new ExtensionFilter("CSV Files", "*.csv");
     
   //--GUI-Actions---------------------------------------------------------------
     
@@ -221,13 +219,14 @@ public class FXMLDocumentController implements Initializable {
     @FXML public void menuSaveAsAction() {
         FileChooser fc = new FileChooser();
             if(!saveFilepath.isEmpty()) {
-                fc.setInitialDirectory(new File(saveFilepath.replaceAll("[a-z,A-Z]*" + SaveFile.filetype, "")));
-                fc.setInitialFileName(saveFilepath.replaceAll(".*\\\\", ""));
+                fc.setInitialDirectory(new File(saveFilepath.replaceAll(saveFilename, "")));
+                fc.setInitialFileName(saveFilename);
             }
             fc.getExtensionFilters().add(saveExtension);
         File file = fc.showSaveDialog(new Stage());
             if(file == null) return;
             saveFilepath = file.getAbsolutePath();
+            saveFilename = file.getName();
         
         saveAction();
     }
@@ -257,8 +256,29 @@ public class FXMLDocumentController implements Initializable {
             updateUnplacedEvents();
         }
     @FXML public void menuExportAction() {
-        System.out.println("Export to CSV Action called");
+        if(exportFilepath.isEmpty()) {
+            menuExportAsAction();
+            return;
+        }
+        exportAction();
     }
+    @FXML public void menuExportAsAction() {
+        FileChooser fc = new FileChooser();
+            if(!exportFilepath.isEmpty()) {
+                fc.setInitialDirectory(new File(exportFilepath.replaceAll(exportFilename, "")));
+                fc.setInitialFileName(exportFilename);
+            }
+            fc.getExtensionFilters().add(exportExtension);
+        File file = fc.showSaveDialog(new Stage());
+            if(file == null) return;
+            exportFilepath = file.getAbsolutePath();
+            exportFilename = file.getName();
+        
+        exportAction();
+    }
+        private void exportAction() {
+            csv.exportCourses(placedEvents, exportFilepath);
+        }
     
     @FXML public void changeFilterAction() {
         this.openFilterGUIViewer();
