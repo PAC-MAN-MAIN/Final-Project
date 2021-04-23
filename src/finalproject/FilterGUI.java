@@ -13,7 +13,13 @@ public class FilterGUI {
     
     public enum Type {
         name("Faculty Name", String.class),
-        adjunct("Is Adjunct", Boolean.class);
+        CORE("CORE Designation", String.class),
+        LARC("LARC Designation", String.class),
+        meetingMethod("Meeting Method", Course.MeetingMethod.class),
+        courseLength("Course Length", Course.CourseLength.class),
+        adjunct("Is Adjunct", Boolean.class),
+        locked("Is Locked", Boolean.class)
+        ;
         
         private String properName;
         private Class type;
@@ -51,8 +57,27 @@ public class FilterGUI {
                     String check = c.getFacultyLname() + ", " + c.getFacultyFname();
                     out = out && check.equals(filters.get(t));
                 } break;
+                case CORE:{
+                    String check = c.getCOREdesignation();
+                    out = out && check.equals(filters.get(t));
+                } break;
+                case LARC:{
+                    String check = c.getLARCdesignation();
+                    out = out && check.equals(filters.get(t));
+                } break;
+                case meetingMethod:{
+                    Course.MeetingMethod check = c.getMeetingMethod();
+                    out = out && check.equals(filters.get(t));
+                } break;
+                case courseLength:{
+                    Course.CourseLength check = c.getCourseLength();
+                    out = out && check.equals(filters.get(t));
+                } break;
                 case adjunct: {
                     out = out && (c.getAdjunct() == Boolean.class.cast(filters.get(t)));
+                } break;
+                case locked:{
+                    out = out && (c.getLockedCourse() == Boolean.class.cast(filters.get(t)));
                 } break;
             } if(!out) break;
         }
@@ -74,10 +99,26 @@ public class FilterGUI {
                 case name: {
                     value = c.getFacultyLname() + ", " + c.getFacultyFname();
                 } break;
+                case CORE:{
+                    value = c.getCOREdesignation();
+                } break;
+                case LARC:{
+                    value = c.getLARCdesignation();
+                } break;
+                case meetingMethod:{
+                    value = c.getMeetingMethod();
+                } break;
+                case courseLength:{
+                    value = c.getCourseLength();
+                } break;
                 case adjunct: {
                     value = c.getAdjunct();
+                } break;
+                case locked:{
+                    value = c.getLockedCourse();
                 }
             }
+            if(value == null) continue;
             boolean placed = false;
             for(Object o : list) if(!placed && o.equals(value)) placed = true;
             if(!placed) list.add(value);
