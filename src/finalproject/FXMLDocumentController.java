@@ -69,6 +69,10 @@ public class FXMLDocumentController implements Initializable {
     
   //--GUI-Actions---------------------------------------------------------------
     
+    @FXML public void listViewAction() {
+        Course c = (Course) eventList.getSelectionModel().getSelectedItem();
+        openCourseViewer(c);
+    }
     @FXML public void timeGridEventAction(ActionEvent e) {
         if(e.getSource() instanceof Button) {
             Button b = (Button) e.getSource();
@@ -360,6 +364,18 @@ public class FXMLDocumentController implements Initializable {
         dayChildren.clear();
         
         dayChildren.addAll(tgf.formatDay(d, dayEvents));
+    }
+    
+    /**
+     * Entirely removes a course, not just placed instances of it
+     * @param c 
+     */
+    public void deleteCourse(Course c) {
+        placedEvents.remove(c);
+        unplacedEvents.remove(c);
+        
+        updateTimeGrid();
+        updateUnplacedEvents();
     }
     
   //--Window--------------------------------------------------------------------

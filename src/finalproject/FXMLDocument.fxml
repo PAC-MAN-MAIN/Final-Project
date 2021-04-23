@@ -29,6 +29,7 @@
          <contextMenu>
             <ContextMenu>
               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#listViewAction" text="View Course" />
                 <MenuItem mnemonicParsing="false" onAction="#unplacedListEditCourse" text="Edit Course" />
               </items>
             </ContextMenu>

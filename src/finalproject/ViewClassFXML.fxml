@@ -37,5 +37,6 @@
       <TextField fx:id="lengthField" editable="false" layoutX="296.0" layoutY="263.0" prefHeight="31.0" prefWidth="294.0" AnchorPane.rightAnchor="10.0" />
       <TextArea fx:id="notesArea" editable="false" layoutX="13.0" layoutY="320.0" prefHeight="283.0" prefWidth="577.0" promptText="Notes" wrapText="true" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="13.0" />
       <Button layoutX="535.0" layoutY="-1.0" mnemonicParsing="false" onAction="#editAction" prefHeight="38.0" prefWidth="87.0" text="Edit" AnchorPane.rightAnchor="0.0" />
+      <Button layoutY="-1.0" mnemonicParsing="false" onAction="#deleteAction" prefHeight="38.0" prefWidth="87.0" text="Delete" />
    </children>
 </AnchorPane>
