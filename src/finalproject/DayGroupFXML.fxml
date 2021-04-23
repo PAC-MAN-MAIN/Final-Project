@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane id="AnchorPane" prefHeight="299.0" prefWidth="397.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="finalproject.DayGroupFXMLController">
+   <children>
+      <ListView fx:id="groupList" onMouseClicked="#listSelectAction" prefHeight="299.0" prefWidth="217.0" />
+      <CheckBox fx:id="mondayCheck" layoutX="247.0" layoutY="45.0" mnemonicParsing="false" text="Monday" />
+      <CheckBox fx:id="tuesdayCheck" layoutX="247.0" layoutY="75.0" mnemonicParsing="false" text="Tuesday" />
+      <CheckBox fx:id="wednesdayCheck" layoutX="247.0" layoutY="105.0" mnemonicParsing="false" text="Wednesday" />
+      <CheckBox fx:id="thursdayCheck" layoutX="247.0" layoutY="135.0" mnemonicParsing="false" text="Thursday" />
+      <CheckBox fx:id="fridayCheck" layoutX="247.0" layoutY="165.0" mnemonicParsing="false" text="Friday" />
+      <Button layoutX="215.0" mnemonicParsing="false" onAction="#deleteAction" text="Delete" />
+      <Button layoutX="229.0" layoutY="238.0" mnemonicParsing="false" onAction="#updateAction" text="Update" />
+      <Button layoutX="312.0" layoutY="238.0" mnemonicParsing="false" onAction="#addAction" text="Add" />
+      <TextField fx:id="durationField" layoutX="229.0" layoutY="198.0" prefHeight="31.0" prefWidth="130.0" promptText="Duration" />
+   </children>
+</AnchorPane>

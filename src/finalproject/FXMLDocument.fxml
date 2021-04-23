@@ -97,13 +97,14 @@
                      </accelerator></MenuItem>
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" text="Filter">
+            <Menu mnemonicParsing="false" text="Settings">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#changeFilterAction" text="Change Filters">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#dayGroupMenuAction" text="Change Day Groupings" />
                </items>
             </Menu>
         </menus>

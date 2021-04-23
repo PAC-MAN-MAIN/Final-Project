@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -20,13 +21,15 @@ public class SaveFile implements Serializable{
     
     private ArrayList<Course> placedEvents;
     private ArrayList<Course> unPlacedEvents;
+    private AppConfig appConfig;
     
     public static final String filetype = ".ScheduleSaveFile";
     
     
-    public SaveFile(ArrayList<Course> placedEvents, ArrayList<Course> unplacedEvents) {
+    public SaveFile(ArrayList<Course> placedEvents, ArrayList<Course> unplacedEvents, AppConfig appConfig) {
         this.placedEvents = placedEvents;
         this.unPlacedEvents = unplacedEvents;
+        this.appConfig = appConfig;
     }
 
     public ArrayList<Course> getPlacedEvents() {
@@ -37,8 +40,13 @@ public class SaveFile implements Serializable{
         return unPlacedEvents;
     }
     
+    public AppConfig getAppConfig() {
+        return appConfig;
+    }
+    
     /**
      * Include filename and filetype at end of filepath
+     * @param filepath
      * @param object
      * @param name
      * @return 
@@ -80,6 +88,7 @@ public class SaveFile implements Serializable{
     
     /**
      * Include filename and filetype in filepath
+     * @param filepath
      * @param name
      * @return 
      */
@@ -100,19 +109,17 @@ public class SaveFile implements Serializable{
             e.printStackTrace();
             return null;
         } catch(IOException e) {
-            System.out.println("Error Initializing Stream - Read");
+            System.out.println("IOException - Read");
+            Alert a = new Alert(Alert.AlertType.ERROR);
+                a.setHeaderText("Imported file is not a compatible Save File");
+                a.setContentText("This may be caused by it representing an older version of the application or by selecting the wrong file");
+                a.showAndWait();
             e.printStackTrace();
             return null;
         } catch(ClassNotFoundException e) {
             System.out.println("Class Not Found - Read");
             e.printStackTrace();
             return null;
-        } catch(ClassCastException e) {
-            Alert a = new Alert(Alert.AlertType.ERROR);
-                a.setHeaderText("Imported file is not a compatible Save File");
-                a.setContentText("This may be caused by it representing an older version of the application or by selecting the wrong file");
-                a.showAndWait();
-            e.printStackTrace();
         } catch(Exception e) {
             e.printStackTrace();
             return null;

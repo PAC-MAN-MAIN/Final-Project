@@ -20,7 +20,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
@@ -52,6 +54,7 @@ public class FXMLDocumentController implements Initializable {
     
     private ArrayList<Course> placedEvents = new ArrayList<>();
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
+    private AppConfig config = new AppConfig();
     
     private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
     private FilterGUI filter = new FilterGUI();
@@ -163,27 +166,34 @@ public class FXMLDocumentController implements Initializable {
             
 //            System.out.println("Dropping from Unplaced at y" + dropPos + " (" + hours + ":" + minutes + ")");
             
-            int duration = 0;
             Course.Day day = getDayFromId(((VBox)e.getSource()).getId());
                 if(day == null) return;
-            switch(day) {
-                case M: duration = AppConfig.DefaultMondayDurationMinutes;
-                    break;
-                case T: duration = AppConfig.DefaultTuesdayDurationMinutes;
-                    break;
-                case W: duration = AppConfig.DefaultWednesdayDurationMinutes;
-                    break;
-                case R: duration = AppConfig.DefaultThursdayDurationMinutes;
-                    break;
-                case F: duration = AppConfig.DefaultFridayDurationMinutes;
-                    break;
+                
+            ArrayList<DayGroup> groupOptions = config.getGroups(day);
+            Alert a = new Alert(Alert.AlertType.NONE);
+                String cancel = "Just this";
+                for(DayGroup g : groupOptions) a.getButtonTypes().add(new ButtonType(g.toString()));
+                a.getButtonTypes().add(new ButtonType(cancel));
+                a.setHeaderText("Day Grouping");
+                a.setContentText("Select the group you want to auto place or 'Just this'");
+                a.showAndWait();
+            DayGroup group = getChosenGroup(a.getResult(), groupOptions);
+            if(group == null) {
+                group = groupOptions.get(0);
+                group = new DayGroup(new Course.Day[] {day}, group.getDuration());
             }
             
-            c.setStartTime(day, LocalTime.of(hours, minutes));
-            c.setDurationMinutes(day, duration);
+            for(Course.Day d : group.getDays()) {
+                c.setStartTime(d, LocalTime.of(hours, minutes));
+                c.setDurationMinutes(d, group.getDuration());
+            }
             placedEvents.add(c);
             unplacedEvents.remove(c);
         }
+            private DayGroup getChosenGroup(ButtonType t, ArrayList<DayGroup> groupOptions) {
+                for(DayGroup g : groupOptions) if(t.getText().equals(g.toString())) return g;
+                return null;
+            }
         private void toUnplacedListDrop(DragEvent e) {
             String text = ((Button) e.getGestureSource()).getText();
             for(Course c : placedEvents) {
@@ -231,26 +241,31 @@ public class FXMLDocumentController implements Initializable {
         saveAction();
     }
         private void saveAction() {
-            SaveFile sf = new SaveFile(placedEvents, unplacedEvents);
+            SaveFile sf = new SaveFile(placedEvents, unplacedEvents, config);
             sf.writeFile(saveFilepath);
         }
     @FXML public void menuLoadAction() {
         FileChooser fc = new FileChooser();
             if(!saveFilepath.isEmpty()) {
-                fc.setInitialDirectory(new File(saveFilepath.replaceAll("[a-z,A-Z]*" + SaveFile.filetype, "")));
-                fc.setInitialFileName(saveFilepath.replaceAll(".*\\\\", ""));
+                fc.setInitialDirectory(new File(saveFilepath.replaceAll(saveFilename, "")));
+                fc.setInitialFileName(saveFilename);
             }
             fc.getExtensionFilters().add(saveExtension);
+            
         File file = fc.showOpenDialog(new Stage());
             if(file == null) return;
             saveFilepath = file.getAbsolutePath();
+            saveFilename = file.getName();
             
             loadAction();
     }
         private void loadAction() {
             SaveFile sf = SaveFile.readObject(saveFilepath);
+                if(sf == null) return;
+                
             this.placedEvents = sf.getPlacedEvents();
             this.unplacedEvents = sf.getUnPlacedEvents();
+            this.config = sf.getAppConfig();
             
             updateTimeGrid();
             updateUnplacedEvents();
@@ -282,6 +297,10 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML public void changeFilterAction() {
         this.openFilterGUIViewer();
+    }
+    
+    @FXML public void dayGroupMenuAction() {
+        openDayGroupViewer();
     }
     
   //--Utiliy--------------------------------------------------------------------
@@ -407,6 +426,17 @@ public class FXMLDocumentController implements Initializable {
         filterGUIStage.close();
     }
     
+    private final Stage dayGroupStage = new Stage();
+    private DayGroupFXMLController dayGroupController;
+    
+    public void openDayGroupViewer() {
+        dayGroupController.setConfig(config);
+        dayGroupStage.showAndWait();
+    }
+    public void closeDayGroupViewer() {
+        dayGroupStage.close();
+    }
+    
   //--Init-and-Init-Events------------------------------------------------
     
     @Override
@@ -416,6 +446,10 @@ public class FXMLDocumentController implements Initializable {
             courseEditorStage.setTitle("Course Scheduler - Course Editor");
             courseViewerStage.setTitle("Course Scheduler - Course Viewer");
             filterGUIStage.setTitle("Course Scheduler - Filter Editor");
+            dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
+            
+        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, 50));
+        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, 75));
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -511,6 +545,16 @@ public class FXMLDocumentController implements Initializable {
             
             filterGUIStage.setScene(new Scene(root));
             filterGUIController.setStage(filterGUIStage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("DayGroupFXML.fxml"));
+            Parent root = loader.load();
+            dayGroupController = loader.getController();
+            
+            dayGroupStage.setScene(new Scene(root));
+//            dayGroupController.setStage(dayGroupStage);
         } catch (Exception e) {
             e.printStackTrace();
         }
