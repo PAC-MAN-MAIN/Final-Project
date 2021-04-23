@@ -71,26 +71,27 @@ public class EditClassFXMLController implements Initializable {
     
     @FXML public void saveAction() {
         if(!validateData()) return;
-        
-        course.setAdjunct(adjunctCheck.isSelected());
-        course.setCOREdesignation(coreField.getText());
-        course.setCourseLength((Course.CourseLength) lengthCombo.getSelectionModel().getSelectedItem());
-        course.setCourseNotes(notesArea.getText());
-        course.setCourseNumber(courseNumberField.getText());
-        course.setCourseTerm(termField.getText());
-        course.setCourseTitle(courseTitleField.getText());
-        course.setFYappropriate(firstYearCheck.isSelected());
-        course.setFacultyFname(facultyFirstField.getText());
-        course.setFacultyLname(facultyLastField.getText());
-        course.setLARCdesignation(larcField.getText());
-        course.setMaxCapacity(Integer.parseInt(capacityField.getText()));
-        course.setMeetingMethod((Course.MeetingMethod) methodCombo.getSelectionModel().getSelectedItem());
-        course.setScheduledHours(Double.parseDouble(scheduledHourField.getText()));
-        course.setSemesterHours(Double.parseDouble(semesterHourField.getText()));
-        course.setLockedCourse(lockedCheck.isSelected());
-        course.setScheduledTimes(getTimes());
-        
-        close();
+        try {
+            course.setAdjunct(adjunctCheck.isSelected());
+            course.setCOREdesignation(coreField.getText());
+            course.setCourseLength((Course.CourseLength) lengthCombo.getSelectionModel().getSelectedItem());
+            course.setCourseNotes(notesArea.getText());
+            course.setCourseNumber(courseNumberField.getText());
+            course.setCourseTerm(termField.getText());
+            course.setCourseTitle(courseTitleField.getText());
+            course.setFYappropriate(firstYearCheck.isSelected());
+            course.setFacultyFname(facultyFirstField.getText());
+            course.setFacultyLname(facultyLastField.getText());
+            course.setLARCdesignation(larcField.getText());
+            course.setMaxCapacity(Integer.parseInt(capacityField.getText()));
+            course.setMeetingMethod((Course.MeetingMethod) methodCombo.getSelectionModel().getSelectedItem());
+            course.setScheduledHours(Double.parseDouble(scheduledHourField.getText()));
+            course.setSemesterHours(Double.parseDouble(semesterHourField.getText()));
+            course.setLockedCourse(lockedCheck.isSelected());
+            course.setScheduledTimes(getTimes());
+
+            close();
+        } catch(Exception e) {}
     }
         private boolean validateData() {
             String message = "";
@@ -126,35 +127,40 @@ public class EditClassFXMLController implements Initializable {
                     a.setContentText(message.trim());
                     a.showAndWait();
             }
-            
+            System.out.println(message);
             return out;
         }
-        private Map<Course.Day, LocalTime[]> getTimes() {
+        private Map<Course.Day, LocalTime[]> getTimes() throws Exception{
             Map<Course.Day, LocalTime[]> out = new HashMap<>();
             
             if(mondayCheck.isSelected()) {
                 LocalTime start = stringToLocalTime(mondayStartField.getText());
                 LocalTime end = stringToLocalTime(mondayEndField.getText());
+                if(start == null || end == null) throw new Exception();
                 out.put(Course.Day.M, new LocalTime[]{start, end});
             }
             if(tuesdayCheck.isSelected()) {
                 LocalTime start = stringToLocalTime(tuesdayStartField.getText());
                 LocalTime end = stringToLocalTime(tuesdayEndField.getText());
+                if(start == null || end == null) throw new Exception();
                 out.put(Course.Day.T, new LocalTime[]{start, end});
             }
             if(wednesdayCheck.isSelected()) {
                 LocalTime start = stringToLocalTime(wednesdayStartField.getText());
                 LocalTime end = stringToLocalTime(wednesdayEndField.getText());
+                if(start == null || end == null) throw new Exception();
                 out.put(Course.Day.W, new LocalTime[]{start, end});
             }
             if(thursdayCheck.isSelected()) {
                 LocalTime start = stringToLocalTime(thursdayStartField.getText());
                 LocalTime end = stringToLocalTime(thursdayEndField.getText());
+                if(start == null || end == null) throw new Exception();
                 out.put(Course.Day.R, new LocalTime[]{start, end});
             }
             if(fridayCheck.isSelected()) {
                 LocalTime start = stringToLocalTime(fridayStartField.getText());
                 LocalTime end = stringToLocalTime(fridayEndField.getText());
+                if(start == null || end == null) throw new Exception();
                 out.put(Course.Day.F, new LocalTime[]{start, end});
             }
             
