@@ -245,6 +245,7 @@ public class Course implements Comparable<Course>,Serializable {
      * @return 
      */
     public boolean conflictsWith(Course c, Day d) {
+        if(c.getScheduledTimes(d) == null) return false;
         LocalTime start1 = getStartTime(d);
         LocalTime start2 = c.getStartTime(d);
         LocalTime end1 = getEndTime(d);

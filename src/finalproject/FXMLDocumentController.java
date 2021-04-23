@@ -9,6 +9,7 @@ import java.io.File;
 import java.net.URL;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -143,12 +144,31 @@ public class FXMLDocumentController implements Initializable {
                 if(c == null) return;
             Course.Day fromDay = getDayFromId(source.getId());
                 if(fromDay == null) return;
+            LocalTime[] fromTimes = c.getScheduledTimes(fromDay);
+            
             c.setScheuledTimes(fromDay, new LocalTime[]{LocalTime.of(hour, minute), LocalTime.of(hour, minute).plusMinutes(c.getDurationMinutes(fromDay))});
 
             VBox destination = (VBox) e.getSource();
+            Course.Day toDay = fromDay;
             if(!source.getId().equals(destination.getId())) {
-                Course.Day toDay = getDayFromId(destination.getId());
+                toDay = getDayFromId(destination.getId());
                 shiftEventDay(fromDay, toDay, c);
+            }
+            
+            ArrayList<Course> conflicts = getConflicts(c, toDay);
+            if(!conflicts.isEmpty()) {
+                String content = "";
+                    for(Course check : conflicts) {
+                        content += check.getFormattedText() + " " + Arrays.toString(check.getScheduledTimes(toDay)) + "\n";
+                    }
+                Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+                    a.setHeaderText("This event will conflict with other placed event(s)");
+                    a.setContentText(content);
+                    a.showAndWait();
+                if(a.getResult().equals(ButtonType.CANCEL)) {
+                    shiftEventDay(toDay, fromDay, c);
+                    c.setScheuledTimes(fromDay, fromTimes);
+                }
             }
         }
             private Course getPlacedEventFromText(String text) {
@@ -191,6 +211,31 @@ public class FXMLDocumentController implements Initializable {
                 c.setStartTime(d, LocalTime.of(hours, minutes));
                 c.setDurationMinutes(d, group.getDuration());
             }
+            
+            // Check Conflicts
+            ArrayList<Course> conflicts = getConflicts(c, group.getDays().toArray(new Course.Day[group.getDays().size()]));
+            if(!conflicts.isEmpty()) {
+                String content = "";
+                    for(Course check : conflicts) {
+                        LocalTime[] times = null;
+                        for(Course.Day d : group.getDays()) {
+                            if(c.conflictsWith(check, d)) {
+                                times = check.getScheduledTimes(d);
+                                break;
+                            }
+                        }
+                        if(times != null) content += check.getFormattedText() + " " + Arrays.toString(times) + "\n";
+                    }
+                a = new Alert(Alert.AlertType.CONFIRMATION);
+                    a.setHeaderText("This event will conflict with other placed events");
+                    a.setContentText(content);
+                    a.showAndWait();
+                if(a.getResult().equals(ButtonType.CANCEL)) {
+                    for(Course.Day d : group.getDays()) c.removeDay(d);
+                    return;
+                }
+            }
+            
             placedEvents.add(c);
             unplacedEvents.remove(c);
         }
@@ -308,6 +353,27 @@ public class FXMLDocumentController implements Initializable {
     }
     
   //--Utiliy--------------------------------------------------------------------
+    
+    /**
+     * Returns a list of courses a given course (c) conflicts with
+     * @param c - the course we are checking
+     * @param d - the days the course will meet
+     * @return 
+     */
+    private ArrayList<Course> getConflicts(Course c, Course.Day... d){
+        ArrayList<Course> conflicts = new ArrayList<>();
+        for(Course current: placedEvents){
+            for(Course.Day D: d){
+             if(conflicts.contains(current)){
+                 continue;
+             }//only adds each course once
+             if(c.conflictsWith(current,D)){
+                conflicts.add(current);
+             }//if they conflict
+            }//inner loops through days
+        }//loops through the placed courses
+        return conflicts;
+    }
     
     /**
      * Updates the list of Unplaced Events according to the events in the unplacedEvents list
