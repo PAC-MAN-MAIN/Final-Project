@@ -8,9 +8,8 @@ package finalproject;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
@@ -19,22 +18,19 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -59,14 +55,25 @@ public class FXMLDocumentController implements Initializable {
     
     private ArrayList<Course> placedEvents = new ArrayList<>();
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
+    private AppConfig config = new AppConfig();
     
     private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
+    private FilterGUI filter = new FilterGUI();
     
     private String saveFilepath = "";
-    private ExtensionFilter saveExtension = new ExtensionFilter("Save File", "*" + SaveFile.filetype);
+    private String saveFilename = "";
+    private ExtensionFilter saveExtension = new ExtensionFilter("Save Files", "*" + SaveFile.filetype);
+    private String exportFilepath = "";
+    private String exportFilename = "";
+    private CSVCreator csv = new CSVCreator();
+    private ExtensionFilter exportExtension = new ExtensionFilter("CSV Files", "*.csv");
     
   //--GUI-Actions---------------------------------------------------------------
     
+    @FXML public void listViewAction() {
+        Course c = (Course) eventList.getSelectionModel().getSelectedItem();
+        openCourseViewer(c);
+    }
     @FXML public void timeGridEventAction(ActionEvent e) {
         if(e.getSource() instanceof Button) {
             Button b = (Button) e.getSource();
@@ -137,12 +144,31 @@ public class FXMLDocumentController implements Initializable {
                 if(c == null) return;
             Course.Day fromDay = getDayFromId(source.getId());
                 if(fromDay == null) return;
+            LocalTime[] fromTimes = c.getScheduledTimes(fromDay);
+            
             c.setScheuledTimes(fromDay, new LocalTime[]{LocalTime.of(hour, minute), LocalTime.of(hour, minute).plusMinutes(c.getDurationMinutes(fromDay))});
 
             VBox destination = (VBox) e.getSource();
+            Course.Day toDay = fromDay;
             if(!source.getId().equals(destination.getId())) {
-                Course.Day toDay = getDayFromId(destination.getId());
+                toDay = getDayFromId(destination.getId());
                 shiftEventDay(fromDay, toDay, c);
+            }
+            
+            ArrayList<Course> conflicts = getConflicts(c, toDay);
+            if(!conflicts.isEmpty()) {
+                String content = "";
+                    for(Course check : conflicts) {
+                        content += check.getFormattedText() + " " + Arrays.toString(check.getScheduledTimes(toDay)) + "\n";
+                    }
+                Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+                    a.setHeaderText("This event will conflict with other placed event(s)");
+                    a.setContentText(content);
+                    a.showAndWait();
+                if(a.getResult().equals(ButtonType.CANCEL)) {
+                    shiftEventDay(toDay, fromDay, c);
+                    c.setScheuledTimes(fromDay, fromTimes);
+                }
             }
         }
             private Course getPlacedEventFromText(String text) {
@@ -164,27 +190,59 @@ public class FXMLDocumentController implements Initializable {
             
 //            System.out.println("Dropping from Unplaced at y" + dropPos + " (" + hours + ":" + minutes + ")");
             
-            int duration = 0;
             Course.Day day = getDayFromId(((VBox)e.getSource()).getId());
                 if(day == null) return;
-            switch(day) {
-                case M: duration = AppConfig.DefaultMondayDurationMinutes;
-                    break;
-                case T: duration = AppConfig.DefaultTuesdayDurationMinutes;
-                    break;
-                case W: duration = AppConfig.DefaultWednesdayDurationMinutes;
-                    break;
-                case R: duration = AppConfig.DefaultThursdayDurationMinutes;
-                    break;
-                case F: duration = AppConfig.DefaultFridayDurationMinutes;
-                    break;
+                
+            ArrayList<DayGroup> groupOptions = config.getGroups(day);
+            Alert a = new Alert(Alert.AlertType.NONE);
+                String cancel = "Just this";
+                for(DayGroup g : groupOptions) a.getButtonTypes().add(new ButtonType(g.toString()));
+                a.getButtonTypes().add(new ButtonType(cancel));
+                a.setHeaderText("Day Grouping");
+                a.setContentText("Select the group you want to auto place or 'Just this'");
+                a.showAndWait();
+            DayGroup group = getChosenGroup(a.getResult(), groupOptions);
+            if(group == null) {
+                group = groupOptions.get(0);
+                group = new DayGroup(new Course.Day[] {day}, group.getDuration());
             }
             
-            c.setStartTime(day, LocalTime.of(hours, minutes));
-            c.setDurationMinutes(day, duration);
+            for(Course.Day d : group.getDays()) {
+                c.setStartTime(d, LocalTime.of(hours, minutes));
+                c.setDurationMinutes(d, group.getDuration());
+            }
+            
+            // Check Conflicts
+            ArrayList<Course> conflicts = getConflicts(c, group.getDays().toArray(new Course.Day[group.getDays().size()]));
+            if(!conflicts.isEmpty()) {
+                String content = "";
+                    for(Course check : conflicts) {
+                        LocalTime[] times = null;
+                        for(Course.Day d : group.getDays()) {
+                            if(c.conflictsWith(check, d)) {
+                                times = check.getScheduledTimes(d);
+                                break;
+                            }
+                        }
+                        if(times != null) content += check.getFormattedText() + " " + Arrays.toString(times) + "\n";
+                    }
+                a = new Alert(Alert.AlertType.CONFIRMATION);
+                    a.setHeaderText("This event will conflict with other placed events");
+                    a.setContentText(content);
+                    a.showAndWait();
+                if(a.getResult().equals(ButtonType.CANCEL)) {
+                    for(Course.Day d : group.getDays()) c.removeDay(d);
+                    return;
+                }
+            }
+            
             placedEvents.add(c);
             unplacedEvents.remove(c);
         }
+            private DayGroup getChosenGroup(ButtonType t, ArrayList<DayGroup> groupOptions) {
+                for(DayGroup g : groupOptions) if(t.getText().equals(g.toString())) return g;
+                return null;
+            }
         private void toUnplacedListDrop(DragEvent e) {
             String text = ((Button) e.getGestureSource()).getText();
             for(Course c : placedEvents) {
@@ -220,46 +278,102 @@ public class FXMLDocumentController implements Initializable {
     @FXML public void menuSaveAsAction() {
         FileChooser fc = new FileChooser();
             if(!saveFilepath.isEmpty()) {
-                fc.setInitialDirectory(new File(saveFilepath.replaceAll("[a-z,A-Z]*" + SaveFile.filetype, "")));
-                fc.setInitialFileName(saveFilepath.replaceAll(".*\\\\", ""));
+                fc.setInitialDirectory(new File(saveFilepath.replaceAll(saveFilename, "")));
+                fc.setInitialFileName(saveFilename);
             }
             fc.getExtensionFilters().add(saveExtension);
         File file = fc.showSaveDialog(new Stage());
             if(file == null) return;
             saveFilepath = file.getAbsolutePath();
+            saveFilename = file.getName();
         
         saveAction();
     }
         private void saveAction() {
-            SaveFile sf = new SaveFile(placedEvents, unplacedEvents);
+            SaveFile sf = new SaveFile(placedEvents, unplacedEvents, config);
             sf.writeFile(saveFilepath);
         }
     @FXML public void menuLoadAction() {
         FileChooser fc = new FileChooser();
             if(!saveFilepath.isEmpty()) {
-                fc.setInitialDirectory(new File(saveFilepath.replaceAll("[a-z,A-Z]*" + SaveFile.filetype, "")));
-                fc.setInitialFileName(saveFilepath.replaceAll(".*\\\\", ""));
+                fc.setInitialDirectory(new File(saveFilepath.replaceAll(saveFilename, "")));
+                fc.setInitialFileName(saveFilename);
             }
             fc.getExtensionFilters().add(saveExtension);
+            
         File file = fc.showOpenDialog(new Stage());
             if(file == null) return;
             saveFilepath = file.getAbsolutePath();
+            saveFilename = file.getName();
             
             loadAction();
     }
         private void loadAction() {
             SaveFile sf = SaveFile.readObject(saveFilepath);
+                if(sf == null) return;
+                
             this.placedEvents = sf.getPlacedEvents();
             this.unplacedEvents = sf.getUnPlacedEvents();
+            this.config = sf.getAppConfig();
             
             updateTimeGrid();
             updateUnplacedEvents();
         }
     @FXML public void menuExportAction() {
-        System.out.println("Export to CSV Action called");
+        if(exportFilepath.isEmpty()) {
+            menuExportAsAction();
+            return;
+        }
+        exportAction();
+    }
+    @FXML public void menuExportAsAction() {
+        FileChooser fc = new FileChooser();
+            if(!exportFilepath.isEmpty()) {
+                fc.setInitialDirectory(new File(exportFilepath.replaceAll(exportFilename, "")));
+                fc.setInitialFileName(exportFilename);
+            }
+            fc.getExtensionFilters().add(exportExtension);
+        File file = fc.showSaveDialog(new Stage());
+            if(file == null) return;
+            exportFilepath = file.getAbsolutePath();
+            exportFilename = file.getName();
+        
+        exportAction();
+    }
+        private void exportAction() {
+            csv.exportCourses(placedEvents, exportFilepath);
+        }
+    
+    @FXML public void changeFilterAction() {
+        this.openFilterGUIViewer();
+    }
+    
+    @FXML public void dayGroupMenuAction() {
+        openDayGroupViewer();
     }
     
   //--Utiliy--------------------------------------------------------------------
+    
+    /**
+     * Returns a list of courses a given course (c) conflicts with
+     * @param c - the course we are checking
+     * @param d - the days the course will meet
+     * @return 
+     */
+    private ArrayList<Course> getConflicts(Course c, Course.Day... d){
+        ArrayList<Course> conflicts = new ArrayList<>();
+        for(Course current: placedEvents){
+            for(Course.Day D: d){
+             if(conflicts.contains(current)){
+                 continue;
+             }//only adds each course once
+             if(c.conflictsWith(current,D)){
+                conflicts.add(current);
+             }//if they conflict
+            }//inner loops through days
+        }//loops through the placed courses
+        return conflicts;
+    }
     
     /**
      * Updates the list of Unplaced Events according to the events in the unplacedEvents list
@@ -288,7 +402,7 @@ public class FXMLDocumentController implements Initializable {
         for(Course.Day d : Course.Day.values()) {
             ArrayList<Course> dayEvents = new ArrayList<>();
             for(Course c : placedEvents) {
-                if(c.getScheduledTimes(d) != null) dayEvents.add(c);
+                if(c.getScheduledTimes(d) != null && filter.matches(c)) dayEvents.add(c);
             }
             switch(d) {
                 case M: updateDayTimeGrid(d, mondayBox, dayEvents);
@@ -316,6 +430,18 @@ public class FXMLDocumentController implements Initializable {
         dayChildren.clear();
         
         dayChildren.addAll(tgf.formatDay(d, dayEvents));
+    }
+    
+    /**
+     * Entirely removes a course, not just placed instances of it
+     * @param c 
+     */
+    public void deleteCourse(Course c) {
+        placedEvents.remove(c);
+        unplacedEvents.remove(c);
+        
+        updateTimeGrid();
+        updateUnplacedEvents();
     }
     
   //--Window--------------------------------------------------------------------
@@ -370,6 +496,29 @@ public class FXMLDocumentController implements Initializable {
         courseViewerStage.close();
     }
     
+    private final Stage filterGUIStage = new Stage();
+    private FilterGUIController filterGUIController;
+    
+    public void openFilterGUIViewer() {
+        filterGUIController.setAtttributes(placedEvents, filter);
+        filterGUIStage.showAndWait();
+        updateTimeGrid();
+    }
+    public void closeFilterGUI() {
+        filterGUIStage.close();
+    }
+    
+    private final Stage dayGroupStage = new Stage();
+    private DayGroupFXMLController dayGroupController;
+    
+    public void openDayGroupViewer() {
+        dayGroupController.setConfig(config);
+        dayGroupStage.showAndWait();
+    }
+    public void closeDayGroupViewer() {
+        dayGroupStage.close();
+    }
+    
   //--Init-and-Init-Events------------------------------------------------
     
     @Override
@@ -378,6 +527,11 @@ public class FXMLDocumentController implements Initializable {
             courseCreatorStage.setTitle("Course Scheduler - Course Creator");
             courseEditorStage.setTitle("Course Scheduler - Course Editor");
             courseViewerStage.setTitle("Course Scheduler - Course Viewer");
+            filterGUIStage.setTitle("Course Scheduler - Filter Editor");
+            dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
+            
+        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, 50));
+        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, 75));
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -414,6 +568,7 @@ public class FXMLDocumentController implements Initializable {
         Course c5 = new Course();
             c5.setCourseNumber("CPTR-422");
             c5.setFacultyLname("Mitchell");
+            c5.setFacultyFname("Robin");
             c5.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
             c5.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
             c5.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
@@ -471,6 +626,26 @@ public class FXMLDocumentController implements Initializable {
             
             courseViewerStage.setScene(new Scene(root));
             courseViewerController.setParent(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("FilterGUI.fxml"));
+            Parent root = loader.load();
+            filterGUIController = loader.getController();
+            
+            filterGUIStage.setScene(new Scene(root));
+            filterGUIController.setStage(filterGUIStage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("DayGroupFXML.fxml"));
+            Parent root = loader.load();
+            dayGroupController = loader.getController();
+            
+            dayGroupStage.setScene(new Scene(root));
+//            dayGroupController.setStage(dayGroupStage);
         } catch (Exception e) {
             e.printStackTrace();
         }
