@@ -48,6 +48,9 @@ public class FilterGUI {
     public void removeFilter(Type t) {
         filters.remove(t);
     }
+    public void clearFilters() {
+        filters.clear();
+    }
     
     public boolean matches(Course c) {
         boolean out = true;

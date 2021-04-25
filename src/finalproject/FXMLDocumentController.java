@@ -347,6 +347,11 @@ public class FXMLDocumentController implements Initializable {
     @FXML public void changeFilterAction() {
         this.openFilterGUIViewer();
     }
+    @FXML public void clearFilterMenuAction() {
+        filter.clearFilters();
+        filterGUIController.clearGUI();
+        updateTimeGrid();
+    }
     
     @FXML public void dayGroupMenuAction() {
         openDayGroupViewer();

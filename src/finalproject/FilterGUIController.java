@@ -156,6 +156,11 @@ public class FilterGUIController implements Initializable {
         
         if(attributeCombo.getSelectionModel().isEmpty()) attributeCombo.setItems(FXCollections.observableArrayList(filter.getUnfilteredTypes()));
     }
+    public void clearGUI() {
+        while(!extraAttributeBoxes.isEmpty()) {
+            removeFilterAction();
+        }
+    }
     
     public void setStage(Stage s) {
         stage = s;
