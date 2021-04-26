@@ -59,6 +59,7 @@ public class FXMLDocumentController implements Initializable {
     
     private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
     private FilterGUI filter = new FilterGUI();
+    private AutoPlacer autoPlacer = new AutoPlacer(minimumTime, maximumTime);
     
     private String saveFilepath = "";
     private String saveFilename = "";
@@ -356,6 +357,21 @@ public class FXMLDocumentController implements Initializable {
     @FXML public void dayGroupMenuAction() {
         openDayGroupViewer();
     }
+    
+    @FXML public void autoplaceMenuAction() {
+        autoPlacer.place(unplacedEvents, placedEvents, config);
+        updateTimeGrid();
+        updateUnplacedEvents();
+    }
+        @FXML public void autoplaceAConflictMenuAction() {
+            autoPlacer.setAvoidAllConflicts();
+        }
+        @FXML public void autoplaceFLConflictMenuAction() {
+            autoPlacer.setAvoidLockConflicts();
+        }
+        @FXML public void autoplaceFConflictMenuAction() {
+            autoPlacer.setAvoidNameConflicts();
+        }
     
   //--Utiliy--------------------------------------------------------------------
     
