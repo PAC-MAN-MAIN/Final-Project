@@ -253,9 +253,10 @@ public class Course implements Comparable<Course>,Serializable {
         
         boolean out = false;
         
-        if(start1.isBefore(start2) && !end1.minusMinutes(1).isBefore(start2)) out = true;
-        else if(start2.isBefore(start1) && !end2.minusMinutes(1).isBefore(start1)) out = true;
-        
+        while((start1.isBefore(end1) || start1.equals(end1)) && !out) {
+            if(start1.isAfter(start2) && start1.isBefore(end2)) out = true;
+            if(!out) start1 = start1.plusMinutes(1);
+        }
         
         return out;
     }

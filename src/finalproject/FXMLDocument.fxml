@@ -6,6 +6,9 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -105,8 +108,21 @@
                         <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#clearFilterMenuAction" text="Clear Filters" />
                   <MenuItem mnemonicParsing="false" onAction="#dayGroupMenuAction" text="Change Day Groupings" />
                </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Autoplacing">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#autoplaceMenuAction" text="Place Remaining Courses" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceAConflictMenuAction" selected="true" text="No Conflicts">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="autoplaceConflicts" />
+                     </toggleGroup></RadioMenuItem>
+                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceFLConflictMenuAction" text="No Faculty/Locked Conflicts" toggleGroup="$autoplaceConflicts" />
+                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceFConflictMenuAction" text="No Faculty Conflicts" toggleGroup="$autoplaceConflicts" />
+              </items>
             </Menu>
         </menus>
       </MenuBar>
