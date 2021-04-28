@@ -6,6 +6,9 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioMenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -25,15 +28,16 @@
       <Line endX="893.0" layoutX="424.0" layoutY="540.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
       <Line endX="893.0" layoutX="424.0" layoutY="600.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
       <Line endX="893.0" layoutX="424.0" layoutY="660.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <ListView fx:id="eventList" onDragDetected="#unplacedListDragStart" prefHeight="720.0" prefWidth="284.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="32.0">
+      <ListView fx:id="eventList" onDragDetected="#unplacedListDragStart" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="720.0" prefWidth="284.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="32.0">
          <contextMenu>
             <ContextMenu>
               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#listViewAction" text="View Course" />
                 <MenuItem mnemonicParsing="false" onAction="#unplacedListEditCourse" text="Edit Course" />
               </items>
             </ContextMenu>
          </contextMenu></ListView>
-      <HBox layoutX="324.0" prefHeight="720.0" prefWidth="995.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
+      <HBox layoutX="324.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="995.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="323.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
          <children>
             <VBox id="Monday" fx:id="mondayBox" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="200.0" prefWidth="100.0" style="-fx-border-color: black;" HBox.hgrow="ALWAYS" />
             <VBox id="Tuesday" fx:id="tuesdayBox" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="200.0" prefWidth="100.0" style="-fx-border-color: black;" HBox.hgrow="ALWAYS" />
@@ -60,6 +64,35 @@
       </VBox>
       <MenuBar layoutY="-2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
+            <Menu mnemonicParsing="false" text="File">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#menuSaveAction" text="Save">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#menuSaveAsAction" text="Save-As">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#menuLoadAction" text="Load">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#menuExportAction" text="Export">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#menuExportAsAction" text="Export As">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+              </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Courses">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#createCourseAction" text="New Course">
@@ -68,6 +101,29 @@
                      </accelerator></MenuItem>
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Settings">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#changeFilterAction" text="Change Filters">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator>
+                  </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#clearFilterMenuAction" text="Clear Filters" />
+                  <MenuItem mnemonicParsing="false" onAction="#dayGroupMenuAction" text="Change Day Groupings" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Autoplacing">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#autoplaceMenuAction" text="Place Remaining Courses" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceAConflictMenuAction" selected="true" text="No Conflicts">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="autoplaceConflicts" />
+                     </toggleGroup></RadioMenuItem>
+                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceFLConflictMenuAction" text="No Faculty/Locked Conflicts" toggleGroup="$autoplaceConflicts" />
+                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceFConflictMenuAction" text="No Faculty Conflicts" toggleGroup="$autoplaceConflicts" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
    </children>

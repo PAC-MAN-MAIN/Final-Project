@@ -89,6 +89,12 @@ public class ViewClassFXMLController implements Initializable {
         parentController.openCourseEditor(course);
     }
     
+    @FXML public void deleteAction() {
+        parentController.deleteCourse(course);
+        view(new Course());
+        close();
+    }
+    
   //----------------------------------------------------------------------------
     
     private FXMLDocumentController parentController;

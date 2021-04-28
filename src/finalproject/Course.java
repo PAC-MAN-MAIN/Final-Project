@@ -5,15 +5,19 @@
  */
 package finalproject;
 
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author shado
  */
 
-public class Course implements Comparable<Course> {
+public class Course implements Comparable<Course>,Serializable {
+    
     private String courseTerm = "";
     private String courseNumber = "";
     private String courseTitle = "";
@@ -26,13 +30,14 @@ public class Course implements Comparable<Course> {
     private double semesterHours = 0;
     private double scheduledHours = 0;
     private int maxCapacity = 0;
-    private String daysScheduled = "";
-    private LocalTime startTime = null;
-    private LocalTime endTime = null;
     private boolean locked = false;
     private MeetingMethod meetingMethod = null;
     private CourseLength courseLength = null;
     private String courseNotes = "";
+    private Map<Day, LocalTime[]> scheduledTimes = new HashMap<>();
+//    private String daysScheduled = "";
+//    private LocalTime startTime = null;
+//    private LocalTime endTime = null;
     
     public enum MeetingMethod{
         LEC,
@@ -45,8 +50,19 @@ public class Course implements Comparable<Course> {
         SecondHalf,
         FullSemester;
     }
+    public enum Day{
+        M("Monday"),
+        T("Tuesday"),
+        W("Wednesday"),
+        R("Thursday"),
+        F("Friday");
+        
+        private final String value;
+        Day(String s) {value = s;}
+        String getValue() {return value;}
+    }
     
-    public Course(String term, String courseNum, String courseTitle, String CORE, String LARC, boolean FYappropriate, String facultyLastName, String facultyFirstName, boolean adjunct, double semesterHrs, double scheduledHrs, int capacity, String daysOfWeek, LocalTime startTime, LocalTime endTime, boolean isLocked, MeetingMethod meetingMethod, String notes, CourseLength courseLength){
+    public Course(String term, String courseNum, String courseTitle, String CORE, String LARC, boolean FYappropriate, String facultyLastName, String facultyFirstName, boolean adjunct, double semesterHrs, double scheduledHrs, int capacity, boolean isLocked, MeetingMethod meetingMethod, String notes, CourseLength courseLength){
         courseTerm = term;
         courseNumber = courseNum;
         this.courseTitle = courseTitle;
@@ -59,9 +75,6 @@ public class Course implements Comparable<Course> {
         semesterHours = semesterHrs;
         scheduledHours = scheduledHrs;
         maxCapacity = capacity;
-        daysScheduled = daysOfWeek;
-        this.startTime = startTime;
-        this.endTime = endTime;
         locked = isLocked;
         this.meetingMethod = meetingMethod;
         courseNotes = notes;
@@ -155,27 +168,6 @@ public class Course implements Comparable<Course> {
         this.maxCapacity = maxCapacity;
     }
 
-    public String getDaysScheduled() {
-        return daysScheduled;
-    }
-    public void setDaysScheduled(String daysScheduled) {
-        this.daysScheduled = daysScheduled;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
     public boolean getLockedCourse() {
         return locked;
     }
@@ -203,15 +195,71 @@ public class Course implements Comparable<Course> {
     public void setCourseLength(CourseLength courseLength) {
         this.courseLength = courseLength;
     }
-
-    public int getDurationMinutes() {
-        return (int)startTime.until(endTime, ChronoUnit.MINUTES);
+    
+    public Map<Day, LocalTime[]> getScheduledTimes() {
+        return scheduledTimes;
     }
-    public void setDurationMinutes(int minutes) {
-        endTime = startTime.plusMinutes(minutes);
+    public void setScheduledTimes(Map<Day, LocalTime[]> scheduledTimes) {
+        this.scheduledTimes = scheduledTimes;
+    }
+    public LocalTime[] getScheduledTimes(Day d) {
+        return scheduledTimes.get(d);
+    }
+    public void setScheuledTimes(Day d, LocalTime[] times) {
+        scheduledTimes.put(d, times);
+    }
+    public LocalTime getStartTime(Day d) {
+        return scheduledTimes.get(d)[0];
+    }
+    public void setStartTime(Day d, LocalTime start) {
+        if(scheduledTimes.get(d) != null) scheduledTimes.get(d)[0] = start;
+        else scheduledTimes.put(d, new LocalTime[]{start, LocalTime.of(start.getHour(), start.getMinute())});
+    }
+    public LocalTime getEndTime(Day d) {
+        return scheduledTimes.get(d)[1];
+    }
+    public void setEndTime(Day d, LocalTime end) {
+        if(scheduledTimes.get(d) != null) scheduledTimes.get(d)[1] = end;
+        else scheduledTimes.put(d, new LocalTime[]{LocalTime.of(end.getHour(), end.getMinute()), end});
+    }
+    public void removeDay(Day d) {
+        scheduledTimes.remove(d);
+    }
+
+    public int getDurationMinutes(Day d) {
+        LocalTime start = scheduledTimes.get(d)[0];
+        LocalTime end = scheduledTimes.get(d)[1];
+        return (int)start.until(end, ChronoUnit.MINUTES);
+    }
+    public void setDurationMinutes(Day d, int minutes) {
+        LocalTime start = scheduledTimes.get(d)[0];
+        scheduledTimes.get(d)[1] = start.plusMinutes(minutes);
     }
 
     //</editor-fold>
+    
+    /**
+     * Checks to see if a given course overlaps with this course on a given day
+     * @param c
+     * @param d
+     * @return 
+     */
+    public boolean conflictsWith(Course c, Day d) {
+        if(c.getScheduledTimes(d) == null) return false;
+        LocalTime start1 = getStartTime(d);
+        LocalTime start2 = c.getStartTime(d);
+        LocalTime end1 = getEndTime(d);
+        LocalTime end2 = c.getEndTime(d);
+        
+        boolean out = false;
+        
+        while((start1.isBefore(end1) || start1.equals(end1)) && !out) {
+            if(start1.isAfter(start2) && start1.isBefore(end2)) out = true;
+            if(!out) start1 = start1.plusMinutes(1);
+        }
+        
+        return out;
+    }
     
     public String getFormattedText(){
         if(facultyFname == null && facultyLname == null){
@@ -229,12 +277,7 @@ public class Course implements Comparable<Course> {
     
     @Override
     public int compareTo(Course o) {
-        return startTime.compareTo(o.getStartTime());
-    }
-    
-    @Override
-    public Course clone() {
-        return new Course(courseTerm, courseNumber, courseTitle, COREdesignation, LARCdesignation, FYappropriate, facultyLname, facultyFname, adjunct, semesterHours, scheduledHours, maxCapacity, daysScheduled, LocalTime.of(startTime.getHour(), startTime.getMinute()), LocalTime.of(endTime.getHour(), endTime.getMinute()), locked, meetingMethod, courseNotes, courseLength);
+        return courseNumber.compareTo(o.getCourseNumber());
     }
     
 }
