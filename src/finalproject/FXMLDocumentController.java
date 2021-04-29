@@ -8,6 +8,7 @@ package finalproject;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -188,6 +189,7 @@ public class FXMLDocumentController implements Initializable {
                 dropPos = (int) (Math.round(dropPos / minuteIncrementSnap) * minuteIncrementSnap);
             int hours = (int) (dropPos / 60) + minimumTime.getHour();
             int minutes = (int) (dropPos % 60);
+            LocalTime dropTime = LocalTime.of(hours, minutes);
             
 //            System.out.println("Dropping from Unplaced at y" + dropPos + " (" + hours + ":" + minutes + ")");
             
@@ -200,16 +202,24 @@ public class FXMLDocumentController implements Initializable {
                 for(DayGroup g : groupOptions) a.getButtonTypes().add(new ButtonType(g.toString()));
                 a.getButtonTypes().add(new ButtonType(cancel));
                 a.setHeaderText("Day Grouping");
-                a.setContentText("Select the group you want to auto place or 'Just this'");
+                a.setContentText("Select the group you want to auto place or 'Just this' \nChoosing a group will place in the closest time slot above where you dropped the class");
                 a.showAndWait();
             DayGroup group = getChosenGroup(a.getResult(), groupOptions);
             if(group == null) {
                 group = groupOptions.get(0);
-                group = new DayGroup(new Course.Day[] {day}, group.getDuration());
+                group = new DayGroup(new Course.Day[] {day}, new LocalTime[] {dropTime}, group.getDuration());
+            } else {
+                long shortest = Long.MAX_VALUE;
+                LocalTime tempTime = group.getStartTimes().get(0); // If placed before the earliest time, will use earliest time
+                for(LocalTime t : group.getStartTimes()) {
+                    long temp = t.until(dropTime, ChronoUnit.MINUTES);
+                    if(temp < shortest && temp >= 0) tempTime = t;
+                }
+                dropTime = tempTime;
             }
             
             for(Course.Day d : group.getDays()) {
-                c.setStartTime(d, LocalTime.of(hours, minutes));
+                c.setStartTime(d, dropTime);
                 c.setDurationMinutes(d, group.getDuration());
             }
             
@@ -551,8 +561,12 @@ public class FXMLDocumentController implements Initializable {
             filterGUIStage.setTitle("Course Scheduler - Filter Editor");
             dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
             
-        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, 50));
-        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, 75));
+            LocalTime[] times = new LocalTime[11];
+            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of(i + 8, 0);
+        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, times, 50, "MWF Standard"));
+            times = new LocalTime[8];
+            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of((int)Math.floor(i * 1.5) + 8, (i % 2) * 30);
+        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, times, 75));
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {

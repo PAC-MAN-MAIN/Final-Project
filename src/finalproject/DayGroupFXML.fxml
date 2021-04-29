@@ -6,18 +6,22 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="299.0" prefWidth="397.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="finalproject.DayGroupFXMLController">
+<AnchorPane id="AnchorPane" prefHeight="299.0" prefWidth="572.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="finalproject.DayGroupFXMLController">
    <children>
       <ListView fx:id="groupList" onMouseClicked="#listSelectAction" prefHeight="299.0" prefWidth="217.0" />
-      <CheckBox fx:id="mondayCheck" layoutX="247.0" layoutY="45.0" mnemonicParsing="false" text="Monday" />
-      <CheckBox fx:id="tuesdayCheck" layoutX="247.0" layoutY="75.0" mnemonicParsing="false" text="Tuesday" />
-      <CheckBox fx:id="wednesdayCheck" layoutX="247.0" layoutY="105.0" mnemonicParsing="false" text="Wednesday" />
-      <CheckBox fx:id="thursdayCheck" layoutX="247.0" layoutY="135.0" mnemonicParsing="false" text="Thursday" />
-      <CheckBox fx:id="fridayCheck" layoutX="247.0" layoutY="165.0" mnemonicParsing="false" text="Friday" />
+      <CheckBox fx:id="mondayCheck" layoutX="247.0" layoutY="65.0" mnemonicParsing="false" text="Monday" />
+      <CheckBox fx:id="tuesdayCheck" layoutX="247.0" layoutY="95.0" mnemonicParsing="false" text="Tuesday" />
+      <CheckBox fx:id="wednesdayCheck" layoutX="247.0" layoutY="125.0" mnemonicParsing="false" text="Wednesday" />
+      <CheckBox fx:id="thursdayCheck" layoutX="247.0" layoutY="155.0" mnemonicParsing="false" text="Thursday" />
+      <CheckBox fx:id="fridayCheck" layoutX="247.0" layoutY="185.0" mnemonicParsing="false" text="Friday" />
       <Button layoutX="215.0" mnemonicParsing="false" onAction="#deleteAction" text="Delete" />
-      <Button layoutX="229.0" layoutY="238.0" mnemonicParsing="false" onAction="#updateAction" text="Update" />
-      <Button layoutX="312.0" layoutY="238.0" mnemonicParsing="false" onAction="#addAction" text="Add" />
-      <TextField fx:id="durationField" layoutX="229.0" layoutY="198.0" prefHeight="31.0" prefWidth="130.0" promptText="Duration" />
+      <Button layoutX="229.0" layoutY="258.0" mnemonicParsing="false" onAction="#updateAction" text="Update" />
+      <Button layoutX="312.0" layoutY="258.0" mnemonicParsing="false" onAction="#addAction" text="Add" />
+      <TextField fx:id="durationField" layoutX="229.0" layoutY="218.0" prefHeight="31.0" prefWidth="130.0" promptText="Duration" />
+      <ListView fx:id="timeList" layoutX="372.0" layoutY="-1.0" onMouseClicked="#timeSelectAction" prefHeight="190.0" prefWidth="200.0" />
+      <TextField fx:id="timeField" alignment="CENTER" layoutX="431.0" layoutY="196.0" prefHeight="31.0" prefWidth="83.0" promptText="HH:mm" />
+      <Button layoutX="390.0" layoutY="229.0" mnemonicParsing="false" onAction="#addTimeAction" prefHeight="58.0" prefWidth="83.0" text="Add Time" textAlignment="CENTER" wrapText="true" />
+      <Button layoutX="473.0" layoutY="229.0" mnemonicParsing="false" onAction="#removeTimeAction" prefHeight="58.0" prefWidth="83.0" text="Remove Time" textAlignment="CENTER" wrapText="true" />
+      <TextField fx:id="nameField" layoutX="229.0" layoutY="34.0" prefHeight="31.0" prefWidth="130.0" promptText="Name (Optional)" />
    </children>
 </AnchorPane>
