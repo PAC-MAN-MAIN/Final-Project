@@ -26,6 +26,7 @@ public class FinalProject extends Application {
         
         stage.setScene(scene);
         stage.setTitle("Course Scheduler");
+        stage.setResizable(false);
         stage.show();
     }
 

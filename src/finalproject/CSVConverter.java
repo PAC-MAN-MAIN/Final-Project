@@ -9,7 +9,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 /**
  *
@@ -17,14 +16,14 @@ import java.util.ArrayList;
  */
 public class CSVConverter {
         
-/**
- * This method writes a text file based on the text going in, its file destination and path.
- * @param text
- * @param fileDestination
- * @param filePath
- * @return 
- */
-    public boolean writeTextFile(String text,String filePath, String fileDestination) {
+    /**
+     * This method writes a csv file based on the text going in, its file destination and path.
+     * @param text
+     * @param fileDestination
+     * @param filePath
+     * @return 
+     */
+    public boolean writeCSVFile(String text,String filePath, String fileDestination) {
         if(!fileDestination.endsWith(".csv"))fileDestination+=".csv";
         if(!filePath.endsWith("\\"))filePath+="\\";
         try {

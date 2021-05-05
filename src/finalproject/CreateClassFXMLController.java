@@ -7,8 +7,10 @@ package finalproject;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
@@ -37,10 +39,60 @@ public class CreateClassFXMLController implements Initializable {
     @FXML ComboBox methodCombo;
     @FXML ComboBox lengthCombo;
     
+    private Course course = new Course();
+    
     @FXML public void saveAction() {
-        System.out.println("Save Action Call");
+        if(!validateData()) return;
+        
+        course.setAdjunct(adjunctCheck.isSelected());
+        course.setCOREdesignation(coreField.getText());
+        course.setCourseLength((Course.CourseLength) lengthCombo.getSelectionModel().getSelectedItem());
+        course.setCourseNotes(notesArea.getText());
+        course.setCourseNumber(courseNumberField.getText());
+        course.setCourseTerm(termField.getText());
+        course.setCourseTitle(courseTitleField.getText());
+        course.setFYappropriate(firstYearCheck.isSelected());
+        course.setFacultyFname(facultyFirstField.getText());
+        course.setFacultyLname(facultyLastField.getText());
+        course.setLARCdesignation(larcField.getText());
+        course.setMaxCapacity(Integer.parseInt(capacityField.getText()));
+        course.setMeetingMethod((Course.MeetingMethod) methodCombo.getSelectionModel().getSelectedItem());
+        course.setScheduledHours(Double.parseDouble(scheduledHourField.getText()));
+        course.setSemesterHours(Double.parseDouble(semesterHourField.getText()));
+        
         close();
     }
+        private boolean validateData() {
+            String message = "";
+            boolean out = true;
+            try{
+                Integer.parseInt(capacityField.getText());
+            } catch (Exception e) {
+                message += "Capacity must be numerical\n";
+                out = false;
+            }
+            try{
+                Double.parseDouble(scheduledHourField.getText());
+            } catch (Exception e) {
+                message += "Scheduled Hours must be numerical\n";
+                out = false;
+            }
+            try{
+                Double.parseDouble(semesterHourField.getText());
+            } catch (Exception e) {
+                message += "Semester Hours must be numerical\n";
+                out = false;
+            }
+            
+            if(!out) {
+                Alert a = new Alert(Alert.AlertType.ERROR);
+                    a.setHeaderText("Invalid Data");
+                    a.setContentText(message.trim());
+                    a.showAndWait();
+            }
+            
+            return out;
+        }
     
     /**
      * Resets all fields in Course Creator to default states
@@ -61,6 +113,8 @@ public class CreateClassFXMLController implements Initializable {
         firstYearCheck.setSelected(false);
         methodCombo.getSelectionModel().clearSelection();
         lengthCombo.getSelectionModel().clearSelection();
+        
+        course = new Course();
     }
     
   //----------------------------------------------------------------------------
@@ -70,9 +124,12 @@ public class CreateClassFXMLController implements Initializable {
     public void setParent(FXMLDocumentController p) {
         parentController = p;
     }
-    private void close() {
-        if(parentController != null) parentController.closeCourseCreator();
-        else System.out.println("Parent is null");
+        private void close() {
+            if(parentController != null) parentController.closeCourseCreator();
+            else System.out.println("Parent is null");
+        }
+    public Course getCourse() {
+        return course;
     }
     
     /**
@@ -80,11 +137,8 @@ public class CreateClassFXMLController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-    }    
-    
-    public void edit(){
-        //TODO
+        lengthCombo.setItems(FXCollections.observableArrayList(Course.CourseLength.values()));
+        methodCombo.setItems(FXCollections.observableArrayList(Course.MeetingMethod.values()));
     }
     
 }
