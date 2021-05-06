@@ -8,6 +8,7 @@ package finalproject;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,6 +27,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -53,6 +56,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML VBox wednesdayBox;
     @FXML VBox thursdayBox;
     @FXML VBox fridayBox;
+    @FXML TextField autoplacePrefField;
     
     private ArrayList<Course> placedEvents = new ArrayList<>();
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
@@ -60,7 +64,7 @@ public class FXMLDocumentController implements Initializable {
     
     private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
     private FilterGUI filter = new FilterGUI();
-    private AutoPlacer autoPlacer = new AutoPlacer(minimumTime, maximumTime);
+    private AutoPlacer2 autoPlacer = new AutoPlacer2();
     
     private String saveFilepath = "";
     private String saveFilename = "";
@@ -369,19 +373,12 @@ public class FXMLDocumentController implements Initializable {
     }
     
     @FXML public void autoplaceMenuAction() {
+        LocalTime t = LocalTime.parse(autoplacePrefField.getText(), DateTimeFormatter.ofPattern("HH:mm"));
+        if(t != null) autoPlacer.setPrefTime(t);
         autoPlacer.place(unplacedEvents, placedEvents, config);
         updateTimeGrid();
         updateUnplacedEvents();
     }
-        @FXML public void autoplaceAConflictMenuAction() {
-            autoPlacer.setAvoidAllConflicts();
-        }
-        @FXML public void autoplaceFLConflictMenuAction() {
-            autoPlacer.setAvoidLockConflicts();
-        }
-        @FXML public void autoplaceFConflictMenuAction() {
-            autoPlacer.setAvoidNameConflicts();
-        }
     
   //--Utiliy--------------------------------------------------------------------
     
@@ -622,6 +619,12 @@ public class FXMLDocumentController implements Initializable {
         unplacedEvents.add(c6);
         
         updateUnplacedEvents();
+        
+        autoplacePrefField.setTextFormatter(new TextFormatter<>(change -> {
+            if(!change.getText().matches("[0-9,:]*")) change.setText("");
+            if(change.getControlNewText().length() > 5) change.setText("");
+            return change;
+        }));
     }
     
     private void initializePopups() {
