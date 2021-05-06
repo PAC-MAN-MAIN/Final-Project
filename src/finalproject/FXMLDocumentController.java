@@ -352,6 +352,10 @@ public class FXMLDocumentController implements Initializable {
         openDayGroupViewer();
     }
     
+    @FXML public void colorMenuAction(){
+        openColorEditor();
+    }
+    
   //--Utiliy--------------------------------------------------------------------
     
     /**
@@ -508,6 +512,18 @@ public class FXMLDocumentController implements Initializable {
         filterGUIStage.close();
     }
     
+    private final Stage colorEditorStage = new Stage();
+    private EditColorFXMLController editColorController;
+    
+    public void openColorEditor(){
+        colorEditorStage.showAndWait();
+        updateTimeGrid();
+    }
+    
+    public void closeColorEditor(){
+        colorEditorStage.close();
+    }
+    
     private final Stage dayGroupStage = new Stage();
     private DayGroupFXMLController dayGroupController;
     
@@ -529,6 +545,7 @@ public class FXMLDocumentController implements Initializable {
             courseViewerStage.setTitle("Course Scheduler - Course Viewer");
             filterGUIStage.setTitle("Course Scheduler - Filter Editor");
             dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
+            colorEditorStage.setTitle("Course Scheduler - Color Editor");
             
         config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, 50));
         config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, 75));
@@ -628,6 +645,16 @@ public class FXMLDocumentController implements Initializable {
             filterGUIStage.setScene(new Scene(root));
             filterGUIController.setStage(filterGUIStage);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try { 
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("EditColorFXML.fxml"));
+            Parent root = loader.load();
+            editColorController = loader.getController();
+            
+            colorEditorStage.setScene(new Scene(root));
+            editColorController.setStage(colorEditorStage);            
+        } catch (Exception e){
             e.printStackTrace();
         }
         try {
