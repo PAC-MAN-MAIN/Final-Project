@@ -50,6 +50,7 @@ public class CSVCreator {
         return removeNull(scheduleToStringForm);
     }
     
+    
     private String getTimeString(Course c) {
         String s = "";
         Map<Course.Day, LocalTime[]> map = c.getScheduledTimes();
@@ -57,8 +58,9 @@ public class CSVCreator {
             s += d.name();
         } s += delimiter;
         LocalTime[] l = (LocalTime[]) map.values().toArray()[0];
+        
         s += l[0].format(DateTimeFormatter.ofPattern("hh:mm a"));
-                s += delimiter;
+        s += delimiter;
         s += l[1].format(DateTimeFormatter.ofPattern("hh:mm a")); //MWF|10:30 am|11:20 am
         
         return s;

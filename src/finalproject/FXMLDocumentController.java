@@ -592,14 +592,25 @@ public class FXMLDocumentController implements Initializable {
             c5.setFacultyFname("Robin");
             c5.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
             c5.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+            c5.setScheuledTimes(Course.Day.R, new LocalTime[]{LocalTime.of(14, 00), LocalTime.of(15, 15)});
             c5.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+        Course c7 = new Course(); // new no normal course 
+            c7.setCourseNumber("MUS-YYY");
+            c7.setFacultyLname("Taddesse");
+            c7.setFacultyFname("Niomi");
+            c7.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(8, 00), LocalTime.of(8, 50)});
+            c7.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 30)});
+            c7.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(8, 15), LocalTime.of(8, 50)});
+            c7.setScheuledTimes(Course.Day.R, new LocalTime[]{LocalTime.of(9, 00), LocalTime.of(10, 20)});
         
+            
+            
         placedEvents.add(c1);
         placedEvents.add(c2);
         placedEvents.add(c3);
         placedEvents.add(c4);
         placedEvents.add(c5);
-        
+        placedEvents.add(c7);
         updateTimeGrid();
         
         Course c6 = new Course();
@@ -613,6 +624,8 @@ public class FXMLDocumentController implements Initializable {
         */
         CSVFile test = new CSVFile(placedEvents);
         System.out.println(test.CoursestoCSV(placedEvents));
+            
+            
         /*
         End Testing string form
         */
