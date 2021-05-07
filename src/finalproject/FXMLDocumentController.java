@@ -448,6 +448,14 @@ public class FXMLDocumentController implements Initializable {
         updateUnplacedEvents();
     }
     
+    /**
+     * Gets the applications configuration for use in other courses
+     * @return 
+     */
+    public AppConfig getConfig(){
+        return config;
+    }
+    
   //--Window--------------------------------------------------------------------
     
     private final Stage courseCreatorStage = new Stage();
@@ -516,8 +524,9 @@ public class FXMLDocumentController implements Initializable {
     private EditColorFXMLController editColorController;
     
     public void openColorEditor(){
+        editColorController.setProfessors(placedEvents);
+        editColorController.setConfig(getConfig());
         colorEditorStage.showAndWait();
-        updateTimeGrid();
     }
     
     public void closeColorEditor(){
@@ -653,7 +662,7 @@ public class FXMLDocumentController implements Initializable {
             editColorController = loader.getController();
             
             colorEditorStage.setScene(new Scene(root));
-            editColorController.setStage(colorEditorStage);            
+           editColorController.setStage(colorEditorStage);            
         } catch (Exception e){
             e.printStackTrace();
         }

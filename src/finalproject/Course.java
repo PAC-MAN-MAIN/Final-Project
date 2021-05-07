@@ -247,7 +247,8 @@ public class Course implements Comparable<Course>,Serializable {
     }
     
     public String getColorString(){
-        return color.toString().substring(2);
+        //System.out.println("String: "+ color.toString() + "\n" + "Substring: " + color.toString().substring(2)); 
+        return color.toString().substring(2,8);
     }
     
     
