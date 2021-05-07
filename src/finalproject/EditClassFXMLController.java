@@ -5,6 +5,7 @@
  */
 package finalproject;
 
+import javafx.scene.paint.Color;
 import java.net.URL;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +18,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -44,6 +46,7 @@ public class EditClassFXMLController implements Initializable {
     @FXML CheckBox firstYearCheck;
     @FXML ComboBox methodCombo;
     @FXML ComboBox lengthCombo;
+    @FXML ColorPicker colorPicker;
     
     @FXML CheckBox mondayCheck;
     @FXML TextField mondayStartField;
@@ -89,6 +92,7 @@ public class EditClassFXMLController implements Initializable {
             course.setSemesterHours(Double.parseDouble(semesterHourField.getText()));
             course.setLockedCourse(lockedCheck.isSelected());
             course.setScheduledTimes(getTimes());
+            course.setColor(colorPicker.getValue());
 
             close();
         } catch(Exception e) {}
@@ -290,6 +294,7 @@ public class EditClassFXMLController implements Initializable {
         methodCombo.getSelectionModel().clearSelection();
         lengthCombo.getSelectionModel().clearSelection();
         lockedCheck.setSelected(false);
+        colorPicker.setValue(Color.WHITE);
         
         setTimeFields(new HashMap<>());
         
@@ -315,6 +320,7 @@ public class EditClassFXMLController implements Initializable {
         methodCombo.getSelectionModel().select(c.getMeetingMethod());
         lengthCombo.getSelectionModel().select(c.getCourseLength());
         lockedCheck.setSelected(c.getLockedCourse());
+        colorPicker.setValue(c.getColor());
         
         setTimeFields(c.getScheduledTimes());
     }

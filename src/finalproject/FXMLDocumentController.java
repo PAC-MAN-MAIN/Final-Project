@@ -8,8 +8,6 @@ package finalproject;
 import java.io.File;
 import java.net.URL;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,8 +25,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -56,7 +52,6 @@ public class FXMLDocumentController implements Initializable {
     @FXML VBox wednesdayBox;
     @FXML VBox thursdayBox;
     @FXML VBox fridayBox;
-    @FXML TextField autoplacePrefField;
     
     private ArrayList<Course> placedEvents = new ArrayList<>();
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
@@ -64,7 +59,6 @@ public class FXMLDocumentController implements Initializable {
     
     private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
     private FilterGUI filter = new FilterGUI();
-    private AutoPlacer2 autoPlacer = new AutoPlacer2();
     
     private String saveFilepath = "";
     private String saveFilename = "";
@@ -193,7 +187,6 @@ public class FXMLDocumentController implements Initializable {
                 dropPos = (int) (Math.round(dropPos / minuteIncrementSnap) * minuteIncrementSnap);
             int hours = (int) (dropPos / 60) + minimumTime.getHour();
             int minutes = (int) (dropPos % 60);
-            LocalTime dropTime = LocalTime.of(hours, minutes);
             
 //            System.out.println("Dropping from Unplaced at y" + dropPos + " (" + hours + ":" + minutes + ")");
             
@@ -206,24 +199,16 @@ public class FXMLDocumentController implements Initializable {
                 for(DayGroup g : groupOptions) a.getButtonTypes().add(new ButtonType(g.toString()));
                 a.getButtonTypes().add(new ButtonType(cancel));
                 a.setHeaderText("Day Grouping");
-                a.setContentText("Select the group you want to auto place or 'Just this' \nChoosing a group will place in the closest time slot above where you dropped the class");
+                a.setContentText("Select the group you want to auto place or 'Just this'");
                 a.showAndWait();
             DayGroup group = getChosenGroup(a.getResult(), groupOptions);
             if(group == null) {
                 group = groupOptions.get(0);
-                group = new DayGroup(new Course.Day[] {day}, new LocalTime[] {dropTime}, group.getDuration());
-            } else {
-                long shortest = Long.MAX_VALUE;
-                LocalTime tempTime = group.getStartTimes().get(0); // If placed before the earliest time, will use earliest time
-                for(LocalTime t : group.getStartTimes()) {
-                    long temp = t.until(dropTime, ChronoUnit.MINUTES);
-                    if(temp < shortest && temp >= 0) tempTime = t;
-                }
-                dropTime = tempTime;
+                group = new DayGroup(new Course.Day[] {day}, group.getDuration());
             }
             
             for(Course.Day d : group.getDays()) {
-                c.setStartTime(d, dropTime);
+                c.setStartTime(d, LocalTime.of(hours, minutes));
                 c.setDurationMinutes(d, group.getDuration());
             }
             
@@ -362,22 +347,13 @@ public class FXMLDocumentController implements Initializable {
     @FXML public void changeFilterAction() {
         this.openFilterGUIViewer();
     }
-    @FXML public void clearFilterMenuAction() {
-        filter.clearFilters();
-        filterGUIController.clearGUI();
-        updateTimeGrid();
-    }
     
     @FXML public void dayGroupMenuAction() {
         openDayGroupViewer();
     }
     
-    @FXML public void autoplaceMenuAction() {
-        LocalTime t = LocalTime.parse(autoplacePrefField.getText(), DateTimeFormatter.ofPattern("HH:mm"));
-        if(t != null) autoPlacer.setPrefTime(t);
-        autoPlacer.place(unplacedEvents, placedEvents, config);
-        updateTimeGrid();
-        updateUnplacedEvents();
+    @FXML public void colorMenuAction(){
+        openColorEditor();
     }
     
   //--Utiliy--------------------------------------------------------------------
@@ -536,6 +512,18 @@ public class FXMLDocumentController implements Initializable {
         filterGUIStage.close();
     }
     
+    private final Stage colorEditorStage = new Stage();
+    private EditColorFXMLController editColorController;
+    
+    public void openColorEditor(){
+        colorEditorStage.showAndWait();
+        updateTimeGrid();
+    }
+    
+    public void closeColorEditor(){
+        colorEditorStage.close();
+    }
+    
     private final Stage dayGroupStage = new Stage();
     private DayGroupFXMLController dayGroupController;
     
@@ -557,13 +545,10 @@ public class FXMLDocumentController implements Initializable {
             courseViewerStage.setTitle("Course Scheduler - Course Viewer");
             filterGUIStage.setTitle("Course Scheduler - Filter Editor");
             dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
+            colorEditorStage.setTitle("Course Scheduler - Color Editor");
             
-            LocalTime[] times = new LocalTime[11];
-            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of(i + 8, 0);
-        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, times, 50, "MWF Standard"));
-            times = new LocalTime[8];
-            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of((int)Math.floor(i * 1.5) + 8, (i % 2) * 30);
-        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, times, 75));
+        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, 50));
+        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, 75));
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -619,12 +604,6 @@ public class FXMLDocumentController implements Initializable {
         unplacedEvents.add(c6);
         
         updateUnplacedEvents();
-        
-        autoplacePrefField.setTextFormatter(new TextFormatter<>(change -> {
-            if(!change.getText().matches("[0-9,:]*")) change.setText("");
-            if(change.getControlNewText().length() > 5) change.setText("");
-            return change;
-        }));
     }
     
     private void initializePopups() {
@@ -666,6 +645,16 @@ public class FXMLDocumentController implements Initializable {
             filterGUIStage.setScene(new Scene(root));
             filterGUIController.setStage(filterGUIStage);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try { 
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("EditColorFXML.fxml"));
+            Parent root = loader.load();
+            editColorController = loader.getController();
+            
+            colorEditorStage.setScene(new Scene(root));
+            editColorController.setStage(colorEditorStage);            
+        } catch (Exception e){
             e.printStackTrace();
         }
         try {
