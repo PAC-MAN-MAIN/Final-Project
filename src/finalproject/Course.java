@@ -10,6 +10,11 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.scene.paint.Color; 
+import static javafx.scene.paint.Color.WHITE;
+
+
+
 
 /**
  *
@@ -35,6 +40,7 @@ public class Course implements Comparable<Course>,Serializable {
     private CourseLength courseLength = null;
     private String courseNotes = "";
     private Map<Day, LocalTime[]> scheduledTimes = new HashMap<>();
+    private Color color = WHITE;
 //    private String daysScheduled = "";
 //    private LocalTime startTime = null;
 //    private LocalTime endTime = null;
@@ -234,6 +240,20 @@ public class Course implements Comparable<Course>,Serializable {
     public void setDurationMinutes(Day d, int minutes) {
         LocalTime start = scheduledTimes.get(d)[0];
         scheduledTimes.get(d)[1] = start.plusMinutes(minutes);
+    }
+    
+    public Color getColor(){
+        return color; 
+    }
+    
+    public String getColorString(){
+        //System.out.println("String: "+ color.toString() + "\n" + "Substring: " + color.toString().substring(2)); 
+        return color.toString().substring(2,8);
+    }
+    
+    
+    public void setColor(Color c){
+        color = c;
     }
 
     //</editor-fold>

@@ -98,7 +98,8 @@
               <MenuItem mnemonicParsing="false" onAction="#createCourseAction" text="New Course">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator></MenuItem>
+                     </accelerator>
+                  </MenuItem>
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Settings">
@@ -131,6 +132,11 @@
                         <TextField fx:id="autoplacePrefField" promptText="Preferred Time" text="12:00" />
                      </content>
                   </CustomMenuItem>
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Professor Color">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#colorMenuAction" text="Edit Colors" />
               </items>
             </Menu>
         </menus>

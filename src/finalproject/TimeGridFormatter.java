@@ -11,6 +11,8 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 
 /**
@@ -60,10 +62,11 @@ public class TimeGridFormatter {
     }
     
     private Button getTimeGridBuffer(long duration) {
-        return getTimeGridNode("", (int)duration, true, false, "");
+        return getTimeGridNode("", (int)duration, true, false, "",null, null);
     }
     private Button getTimeGridCourse(Course c, Course.Day d) {
-        return getTimeGridNode(c.getFormattedText(), c.getDurationMinutes(d), false, c.getLockedCourse(), d.getValue());
+       //System.out.println(c.getColorString());
+        return getTimeGridNode(c.getFormattedText(), c.getDurationMinutes(d), false, c.getLockedCourse(), d.getValue(),c.getColorString(), c.getColor());
     }
     
     /**
@@ -73,7 +76,7 @@ public class TimeGridFormatter {
      * @param disabled - If the button should be disabled (true for fillers)
      * @return 
      */
-    private Button getTimeGridNode(String text, int minutes, boolean disabled, boolean locked, String id) {
+    private Button getTimeGridNode(String text, int minutes, boolean disabled, boolean locked, String id,String courseColor, Color colorObject) {
         Button b = new Button();
         
         // Default settings
@@ -85,6 +88,11 @@ public class TimeGridFormatter {
         b.setWrapText(true);
         b.setId(id);
         b.setOnAction((ae) -> parent.timeGridEventAction(ae));
+        if(!disabled)System.out.println("recieved color for: "+text +" "+ courseColor);
+        if(!disabled){
+            b.setStyle("-fx-background-color: #"+ courseColor + "; -fx-font-color: #");
+            b.setTextFill(colorObject.invert());
+        }
         if(!disabled && !locked) b.setOnDragDetected((me) -> parent.timeGridDragStart(me));
         if(!disabled) {
             MenuItem deleteAction = new MenuItem("Delete Instance");

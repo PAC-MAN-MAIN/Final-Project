@@ -380,6 +380,10 @@ public class FXMLDocumentController implements Initializable {
         updateUnplacedEvents();
     }
     
+    @FXML public void colorMenuAction(){
+        openColorEditor();
+    }
+    
   //--Utiliy--------------------------------------------------------------------
     
     /**
@@ -472,6 +476,14 @@ public class FXMLDocumentController implements Initializable {
         updateUnplacedEvents();
     }
     
+    /**
+     * Gets the applications configuration for use in other courses
+     * @return 
+     */
+    public AppConfig getConfig(){
+        return config;
+    }
+    
   //--Window--------------------------------------------------------------------
     
     private final Stage courseCreatorStage = new Stage();
@@ -536,6 +548,19 @@ public class FXMLDocumentController implements Initializable {
         filterGUIStage.close();
     }
     
+    private final Stage colorEditorStage = new Stage();
+    private EditColorFXMLController editColorController;
+    
+    public void openColorEditor(){
+        editColorController.setProfessors(placedEvents);
+        editColorController.setConfig(getConfig());
+        colorEditorStage.showAndWait();
+    }
+    
+    public void closeColorEditor(){
+        colorEditorStage.close();
+    }
+    
     private final Stage dayGroupStage = new Stage();
     private DayGroupFXMLController dayGroupController;
     
@@ -557,6 +582,7 @@ public class FXMLDocumentController implements Initializable {
             courseViewerStage.setTitle("Course Scheduler - Course Viewer");
             filterGUIStage.setTitle("Course Scheduler - Filter Editor");
             dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
+            colorEditorStage.setTitle("Course Scheduler - Color Editor");
             
             LocalTime[] times = new LocalTime[11];
             for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of(i + 8, 0);
@@ -666,6 +692,16 @@ public class FXMLDocumentController implements Initializable {
             filterGUIStage.setScene(new Scene(root));
             filterGUIController.setStage(filterGUIStage);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try { 
+            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("EditColorFXML.fxml"));
+            Parent root = loader.load();
+            editColorController = loader.getController();
+            
+            colorEditorStage.setScene(new Scene(root));
+           editColorController.setStage(colorEditorStage);            
+        } catch (Exception e){
             e.printStackTrace();
         }
         try {
