@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.CustomMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -98,7 +98,8 @@
               <MenuItem mnemonicParsing="false" onAction="#createCourseAction" text="New Course">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                     </accelerator></MenuItem>
+                     </accelerator>
+                  </MenuItem>
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Settings">
@@ -116,12 +117,26 @@
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#autoplaceMenuAction" text="Place Remaining Courses" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceAConflictMenuAction" selected="true" text="No Conflicts">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="autoplaceConflicts" />
-                     </toggleGroup></RadioMenuItem>
-                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceFLConflictMenuAction" text="No Faculty/Locked Conflicts" toggleGroup="$autoplaceConflicts" />
-                  <RadioMenuItem mnemonicParsing="false" onAction="#autoplaceFConflictMenuAction" text="No Faculty Conflicts" toggleGroup="$autoplaceConflicts" />
+                  <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
+                     <content>
+                        <Label text="Preferred Time (HH:mm)" />
+                     </content>
+                  </CustomMenuItem>
+                  <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
+                     <content>
+                        <Label text="(Use 24-hour time)" />
+                     </content>
+                  </CustomMenuItem>
+                  <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Preferred Placement Time">
+                     <content>
+                        <TextField fx:id="autoplacePrefField" promptText="Preferred Time" text="12:00" />
+                     </content>
+                  </CustomMenuItem>
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Professor Color">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#colorMenuAction" text="Edit Colors" />
               </items>
             </Menu>
         </menus>

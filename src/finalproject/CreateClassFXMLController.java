@@ -12,9 +12,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 
 /**
  * FXML Controller class
@@ -38,6 +40,7 @@ public class CreateClassFXMLController implements Initializable {
     @FXML CheckBox firstYearCheck;
     @FXML ComboBox methodCombo;
     @FXML ComboBox lengthCombo;
+    @FXML ColorPicker colorPicker;
     
     private Course course = new Course();
     
@@ -59,7 +62,7 @@ public class CreateClassFXMLController implements Initializable {
         course.setMeetingMethod((Course.MeetingMethod) methodCombo.getSelectionModel().getSelectedItem());
         course.setScheduledHours(Double.parseDouble(scheduledHourField.getText()));
         course.setSemesterHours(Double.parseDouble(semesterHourField.getText()));
-        
+        course.setColor(colorPicker.getValue());
         close();
     }
         private boolean validateData() {
@@ -113,6 +116,7 @@ public class CreateClassFXMLController implements Initializable {
         firstYearCheck.setSelected(false);
         methodCombo.getSelectionModel().clearSelection();
         lengthCombo.getSelectionModel().clearSelection();
+        colorPicker.setValue(Color.WHITE);
         
         course = new Course();
     }

@@ -9,11 +9,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,6 +22,7 @@ import java.util.Map;
 public class CSVCreator {
     private  final String delimiter = "|";
     private  final String separator = "\n";
+    private  final String irregularSeparator = "/";
     private  final String header = "COURSE TERM " + delimiter+ "COURSE NUMBER" + delimiter+ 
             "COURSE TITLE" + delimiter+ "CORE DESIGNATION" + delimiter+ "LARC DESIGNATION"+
             delimiter+"FAC LNAME" + delimiter+ "FAC FNAME" + delimiter+ "SEMESTER HOURS"+ delimiter+
@@ -50,20 +50,70 @@ public class CSVCreator {
         return removeNull(scheduleToStringForm);
     }
     
-    
     private String getTimeString(Course c) {
-        String s = "";
+        
         Map<Course.Day, LocalTime[]> map = c.getScheduledTimes();
+        HashMap<LocalTime, ArrayList<Course.Day>> startTimes = new HashMap<>();
+        HashMap<LocalTime, ArrayList<Course.Day>> endTimes = new HashMap<>();
+        
         for(Course.Day d : map.keySet()) {
-            s += d.name();
-        } s += delimiter;
-        LocalTime[] l = (LocalTime[]) map.values().toArray()[0];
+            LocalTime[] times = map.get(d);
+            if(startTimes.containsKey(times[0])) {
+                if(!startTimes.get(times[0]).contains(d)) {
+                    startTimes.get(times[0]).add(d);
+                    startTimes.get(times[0]).sort(null);
+                }
+            } else {
+                ArrayList<Course.Day> temp = new ArrayList<>();
+                    temp.add(d);
+                startTimes.put(times[0], temp);
+            }
+            if(endTimes.containsKey(times[1])) {
+                if(!endTimes.get(times[1]).contains(d)) {
+                    endTimes.get(times[1]).add(d);
+                    endTimes.get(times[1]).sort(null);
+                }
+            } else {
+                ArrayList<Course.Day> temp = new ArrayList<>();
+                    temp.add(d);
+                endTimes.put(times[1], temp);
+            }
+        }
         
-        s += l[0].format(DateTimeFormatter.ofPattern("hh:mm a"));
-        s += delimiter;
-        s += l[1].format(DateTimeFormatter.ofPattern("hh:mm a")); //MWF|10:30 am|11:20 am
-        
-        return s;
+        ArrayList<LocalTime> times = new ArrayList<>();
+            times.addAll(startTimes.keySet());
+            times.sort((t1, t2) -> {
+                int value = startTimes.get(t2).size() - startTimes.get(t1).size();
+                if(value == 0) value = startTimes.get(t1).get(0).compareTo(startTimes.get(t2).get(0));
+                return value;
+            });
+        ArrayList<Course.Day> days = new ArrayList<>();
+        String dayString = "";
+            for(LocalTime t : times) {
+                days.addAll(startTimes.get(t));
+                days.sort(null);
+                for(Course.Day d : days) dayString += d;
+                dayString += irregularSeparator;
+                days.clear();
+            } dayString = dayString.replaceFirst("\\/\\Z", "");
+        String startString = "";
+            for(LocalTime t : times) {
+                startString += t.format(DateTimeFormatter.ofPattern("hh:mm a")) + irregularSeparator;
+            } startString = startString.replaceFirst("\\/\\Z", "");
+        times.clear();
+        times.addAll(endTimes.keySet());
+        times.sort((t1, t2) -> {
+                int value = endTimes.get(t2).size() - endTimes.get(t1).size();
+                if(value == 0) value = endTimes.get(t1).get(0).compareTo(endTimes.get(t2).get(0));
+                return value;
+        });
+        String endString = "";
+            for(LocalTime t : times) {
+                endString += t.format(DateTimeFormatter.ofPattern("hh:mm a")) + irregularSeparator;
+            } endString = endString.replaceFirst("\\/\\Z", "");
+            
+        String fullString = dayString + delimiter + startString + delimiter + endString;
+        return fullString;
     }
     
     private String removeNull(String input){

@@ -1,8 +1,12 @@
 package finalproject;
 
 import finalproject.Course.Day;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.scene.paint.Color;
 
 
 /**
@@ -10,14 +14,9 @@ import java.util.ArrayList;
  * @author rewil
  */
 public class AppConfig implements Serializable{
-
-    public static int DefaultMondayDurationMinutes = 50;
-    public static int DefaultTuesdayDurationMinutes = 75;
-    public static int DefaultWednesdayDurationMinutes = 50;
-    public static int DefaultThursdayDurationMinutes = 75;
-    public static int DefaultFridayDurationMinutes = 50;
     
     private ArrayList<DayGroup> groups = new ArrayList<>();
+    private Map<String, Color> professorColors = new HashMap<>();
     
     public void addGroup(DayGroup g) {
         groups.add(g);
@@ -38,6 +37,27 @@ public class AppConfig implements Serializable{
     
     public void removeGroup(DayGroup g) {
         groups.remove(g);
+    }
+    
+    /**
+     * 
+     * @param p - the professor
+     * @return - color associated 
+     */
+    public Color getColor(String p){
+        return professorColors.get(p);
+    }
+    
+    public void setProfessorColor(String p, Color c){
+        professorColors.put(p, c);
+    }
+    
+    public void editColor(String p, Color c){
+        professorColors.replace(p, c);
+    }
+    
+    public boolean contains(String p){
+        return professorColors.containsKey(p);
     }
     
 }
