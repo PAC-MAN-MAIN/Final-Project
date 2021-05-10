@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" fx:id="colorPane" prefHeight="123.0" prefWidth="359.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane id="colorPane" fx:id="pane" prefHeight="123.0" prefWidth="359.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="finalproject.EditColorFXMLController">
    <children>
-      <ColorPicker fx:id="colorPicker" layoutX="207.0" layoutY="50.0" promptText="Set Color" />
-      <ComboBox fx:id="professorList" layoutX="30.0" layoutY="50.0" prefWidth="150.0" promptText="Select Professor" />
+      <ColorPicker id="colorPicker" fx:id="colorPicker" layoutX="210.0" layoutY="38.0" onAction="#selectColorAction" promptText="Set Color" />
+      <ComboBox id="professorList" fx:id="professorList" layoutX="30.0" layoutY="38.0" onAction="#selectProfessorAction" prefWidth="150.0" promptText="Select Professor" />
+      <Button id="applyBtn" fx:id="applyBtn" layoutX="247.0" layoutY="78.0" mnemonicParsing="false" onAction="#applyBtnAction" text="Apply" />
    </children>
 </AnchorPane>
