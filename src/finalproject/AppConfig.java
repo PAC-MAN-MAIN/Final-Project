@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import javafx.scene.paint.Color;
 
 
@@ -23,6 +25,10 @@ public class AppConfig implements Serializable{
     
     private ArrayList<DayGroup> groups = new ArrayList<>();
     private Map<String, Color> professorColors = new HashMap<>();
+    
+    public AppConfig(){
+        professorColors.put("", Color.WHITE);
+    }
     
     public void addGroup(DayGroup g) {
         groups.add(g);
@@ -50,20 +56,51 @@ public class AppConfig implements Serializable{
      * @param p - the professor
      * @return - color associated 
      */
-    public Color getColor(String p){
-        return professorColors.get(p);
+    public String getFullName(Course c){
+        return c.getFacultyFname()+" "+c.getFacultyLname();
+    }
+    public Color getColor(Course c){
+        return professorColors.get(getFullName(c));
     }
     
-    public void setProfessorColor(String p, Color c){
-        professorColors.put(p, c);
+    public Color getColor(String s){
+        return professorColors.get(s);
     }
     
-    public void editColor(String p, Color c){
-        professorColors.replace(p, c);
+    public void setProfessorColor(Course c, Color cl){
+        professorColors.put(getFullName(c), cl);
     }
     
-    public boolean contains(String p){
-        return professorColors.containsKey(p);
+    public void setProfessorColor(String s, Color c){
+        professorColors.put(s,c);
     }
     
+    public void editColor(String s, Color cl){
+        professorColors.replace(s, cl);
+    }
+    
+    public boolean isRegistered(Course c){
+        return professorColors.containsKey(getFullName(c));
+    }
+    
+    public Set<String> getProfessors(){
+        return professorColors.keySet();
+    }
+    
+    public void registerCourse(Course c){
+        if(isRegistered(c)){
+            return;
+        } else{
+            setProfessorColor(c,getRandomColor());
+        }
+    }
+    
+    public Color getRandomColor(){
+        Random R = new Random();
+        Color c = Color.WHITE;
+        while(professorColors.values().contains(c)){
+            c = Color.color(R.nextDouble(), R.nextDouble(), R.nextDouble());
+        }
+        return c;
+    }
 }
