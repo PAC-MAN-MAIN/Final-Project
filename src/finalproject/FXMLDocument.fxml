@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.CustomMenuItem?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="752.0" prefWidth="1318.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="finalproject.FXMLDocumentController">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="752.0" prefWidth="1318.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="finalproject.FXMLDocumentController">
    <children>
       <Line endX="893.0" layoutX="424.0" layoutY="60.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
       <Line endX="893.0" layoutX="424.0" layoutY="120.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
@@ -106,8 +109,30 @@
                         <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
+                  <MenuItem mnemonicParsing="false" onAction="#clearFilterMenuAction" text="Clear Filters" />
                   <MenuItem mnemonicParsing="false" onAction="#dayGroupMenuAction" text="Change Day Groupings" />
                </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Autoplacing">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#autoplaceMenuAction" text="Place Remaining Courses" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
+                     <content>
+                        <Label text="Preferred Time (HH:mm)" />
+                     </content>
+                  </CustomMenuItem>
+                  <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
+                     <content>
+                        <Label text="(Use 24-hour time)" />
+                     </content>
+                  </CustomMenuItem>
+                  <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Preferred Placement Time">
+                     <content>
+                        <TextField fx:id="autoplacePrefField" promptText="Preferred Time" text="12:00" />
+                     </content>
+                  </CustomMenuItem>
+              </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Professor Color">
               <items>

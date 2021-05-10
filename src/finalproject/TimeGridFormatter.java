@@ -12,7 +12,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 
 /**
@@ -88,7 +87,6 @@ public class TimeGridFormatter {
         b.setWrapText(true);
         b.setId(id);
         b.setOnAction((ae) -> parent.timeGridEventAction(ae));
-        if(!disabled)System.out.println("recieved color for: "+text +" "+ courseColor);
         if(!disabled){
             b.setStyle("-fx-background-color: #"+ courseColor + "; -fx-font-color: #");
             b.setTextFill(colorObject.invert());
