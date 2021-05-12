@@ -18,10 +18,10 @@ import javafx.scene.paint.Color;
 public class AppConfig implements Serializable{
     
     private ArrayList<DayGroup> groups = new ArrayList<>();
-    private Map<String, Color> professorColors = new HashMap<>();
+    private Map<String, SerialColor> professorColors = new HashMap<>();
     
     public AppConfig(){
-        professorColors.put("", Color.WHITE);
+        professorColors.put("", new SerialColor(Color.WHITE));
     }
     
     public void addGroup(DayGroup g) {
@@ -45,32 +45,33 @@ public class AppConfig implements Serializable{
         groups.remove(g);
     }
     
-    /**
-     * 
-     * @param p - the professor
-     * @return - color associated 
-     */
-    public String getFullName(Course c){
+    
+    
+    private String getFullName(Course c){
         return c.getFacultyFname()+" "+c.getFacultyLname();
     }
     public Color getColor(Course c){
-        return professorColors.get(getFullName(c));
+        SerialColor sc = professorColors.get(getFullName(c));
+        if(sc == null) return null;
+        return sc.getColor();
     }
     
     public Color getColor(String s){
-        return professorColors.get(s);
+        SerialColor sc = professorColors.get(s);
+        if(sc == null) return null;
+        return sc.getColor();
     }
     
     public void setProfessorColor(Course c, Color cl){
-        professorColors.put(getFullName(c), cl);
+        professorColors.put(getFullName(c), new SerialColor(cl));
     }
     
     public void setProfessorColor(String s, Color c){
-        professorColors.put(s,c);
+        professorColors.put(s, new SerialColor(c));
     }
     
     public void editColor(String s, Color cl){
-        professorColors.replace(s, cl);
+        professorColors.replace(s, new SerialColor(cl));
     }
     
     public boolean isRegistered(Course c){
@@ -86,15 +87,18 @@ public class AppConfig implements Serializable{
             return;
         } else{
             setProfessorColor(c,getRandomColor());
-        }
+        } 
     }
     
     public Color getRandomColor(){
         Random R = new Random();
         Color c = Color.WHITE;
-        while(professorColors.values().contains(c)){
+            SerialColor temp = new SerialColor(c);
+        while(professorColors.values().contains(temp)){
             c = Color.color(R.nextDouble(), R.nextDouble(), R.nextDouble());
+            temp = new SerialColor(c);
         }
         return c;
     }
+    
 }

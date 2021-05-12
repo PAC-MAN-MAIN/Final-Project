@@ -43,6 +43,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javax.swing.filechooser.FileSystemView;
 
 /**
  *
@@ -159,16 +160,24 @@ public class FXMLDocumentController implements Initializable {
                 if(fromDay == null) return;
             LocalTime[] fromTimes = c.getScheduledTimes(fromDay);
             
-            c.setScheuledTimes(fromDay, new LocalTime[]{LocalTime.of(hour, minute), LocalTime.of(hour, minute).plusMinutes(c.getDurationMinutes(fromDay))});
 
             VBox destination = (VBox) e.getSource();
             Course.Day toDay = fromDay;
             if(!source.getId().equals(destination.getId())) {
                 toDay = getDayFromId(destination.getId());
-                shiftEventDay(fromDay, toDay, c);
+                if(c.getScheduledTimes(toDay) != null) {
+                    Alert a = new Alert(Alert.AlertType.ERROR);
+                        a.setHeaderText("Course Already Scheduled For Day");
+                        a.setContentText("Courses cannot be scheduled twice on the same day");
+                        a.showAndWait();
+                    return;
+                }
             }
+            c.setScheuledTimes(fromDay, new LocalTime[]{LocalTime.of(hour, minute), LocalTime.of(hour, minute).plusMinutes(c.getDurationMinutes(fromDay))});
+            if(!toDay.equals(fromDay)) shiftEventDay(fromDay, toDay, c);
             
             ArrayList<Course> conflicts = getConflicts(c, toDay);
+            conflicts.remove(c);
             if(!conflicts.isEmpty()) {
                 String content = "";
                     for(Course check : conflicts) {
@@ -291,7 +300,7 @@ public class FXMLDocumentController implements Initializable {
     }
     
     @FXML public void menuSaveAction() {
-        if(saveFilepath.isEmpty()) {
+        if(saveFilepath.isEmpty() || saveFilename.isEmpty()) {
             menuSaveAsAction();
             return;
         }
@@ -342,7 +351,7 @@ public class FXMLDocumentController implements Initializable {
             updateUnplacedEvents();
         }
     @FXML public void menuExportAction() {
-        if(exportFilepath.isEmpty()) {
+        if(exportFilepath.isEmpty() || exportFilename.isEmpty()) {
             menuExportAsAction();
             return;
         }
@@ -617,6 +626,10 @@ public class FXMLDocumentController implements Initializable {
             filterGUIStage.setTitle("Course Scheduler - Filter Editor");
             dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
             colorEditorStage.setTitle("Course Scheduler - Color Editor");
+            
+        String documentsPath = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+            saveFilepath = documentsPath;
+            exportFilepath = documentsPath;
             
             LocalTime[] times = new LocalTime[11];
             for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of(i + 8, 0);
