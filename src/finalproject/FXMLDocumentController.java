@@ -27,6 +27,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -59,6 +61,8 @@ public class FXMLDocumentController implements Initializable {
     @FXML VBox thursdayBox;
     @FXML VBox fridayBox;
     @FXML TextField autoplacePrefField;
+    @FXML ComboBox professorCombo;
+    @FXML ColorPicker professorColor;
     
     private ArrayList<Course> placedEvents = new ArrayList<>();
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
@@ -384,6 +388,22 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML public void colorMenuAction(){
         openColorEditor();
+    }
+    @FXML public void updateProfessorListMenuAction() {
+        professorCombo.getSelectionModel().clearSelection();
+        professorCombo.setItems(FXCollections.observableArrayList(config.getProfessors()));
+        professorCombo.getItems().remove("");
+    }
+    @FXML public void updateProfessorColorPickerAction() {
+        String prof = professorCombo.getSelectionModel().getSelectedItem().toString();
+        Color color = config.getColor(prof);
+        professorColor.setValue(color);
+        professorCombo.hide();
+    }
+    @FXML public void updateProfessorColorAction() {
+        if(professorCombo.getSelectionModel().isEmpty()) return;
+        config.editColor(professorCombo.getSelectionModel().getSelectedItem().toString(), professorColor.getValue());
+        updateTimeGrid();
     }
     
   //--Utiliy--------------------------------------------------------------------

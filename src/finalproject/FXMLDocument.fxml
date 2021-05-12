@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.CustomMenuItem?>
 <?import javafx.scene.control.Label?>
@@ -134,9 +136,19 @@
                   </CustomMenuItem>
               </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Professor Color">
+            <Menu mnemonicParsing="false" onShown="#updateProfessorListMenuAction" text="Professor Color">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#colorMenuAction" text="Edit Colors" />
+                <MenuItem mnemonicParsing="false" onAction="#colorMenuAction" text="Edit Colors" visible="false" />
+                  <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
+                     <content>
+                        <ComboBox fx:id="professorCombo" onAction="#updateProfessorColorPickerAction" prefWidth="150.0" promptText="Choose Professor" />
+                     </content>
+                  </CustomMenuItem>
+                  <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
+                     <content>
+                        <ColorPicker fx:id="professorColor" onAction="#updateProfessorColorAction" />
+                     </content>
+                  </CustomMenuItem>
               </items>
             </Menu>
         </menus>

@@ -97,7 +97,10 @@ public class TimeGridFormatter {
         b.setOnAction((ae) -> parent.timeGridEventAction(ae));
         if(!disabled){
             b.setStyle("-fx-background-color: #"+ courseColor);
-            b.setTextFill(colorObject.invert());
+            Color textColor = Color.BLACK;
+            double luma = 0.299 * colorObject.getRed() + 0.587 * colorObject.getGreen() + 0.114 * colorObject.getBlue(); // Magic numbers are stolen from stackoverflow and are tested and proven really good values and are only used here
+            if(luma < 0.5) textColor = Color.WHITE;
+            b.setTextFill(textColor);
         }
         if(!disabled && !locked) b.setOnDragDetected((me) -> parent.timeGridDragStart(me));
         if(!disabled) {
