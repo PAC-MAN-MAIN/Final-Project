@@ -37,6 +37,7 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -68,7 +69,7 @@ public class FXMLDocumentController implements Initializable {
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
     private AppConfig config = new AppConfig();
     
-    private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
+    private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime, maximumTime);
     private FilterGUI filter = new FilterGUI();
     private AutoPlacer2 autoPlacer = new AutoPlacer2();
     
@@ -484,6 +485,10 @@ public class FXMLDocumentController implements Initializable {
         dayChildren.clear();
         
         dayChildren.addAll(tgf.formatDay(d, dayEvents, config));
+        dayChildren.forEach((node) -> {
+            if(node instanceof Button) if(!((Button)node).isDisabled()) return;
+            VBox.setVgrow(node, Priority.ALWAYS);
+        });
     }
     
     /**
@@ -586,7 +591,6 @@ public class FXMLDocumentController implements Initializable {
         editColorController.setProfessors();
         colorEditorStage.showAndWait();
     }
-    
     public void closeColorEditor(){
         colorEditorStage.close();
     }

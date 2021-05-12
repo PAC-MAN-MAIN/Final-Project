@@ -14,32 +14,55 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="752.0" prefWidth="1318.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="finalproject.FXMLDocumentController">
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="752.0" prefWidth="1318.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="finalproject.FXMLDocumentController">
    <children>
-      <Line endX="893.0" layoutX="424.0" layoutY="60.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="120.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="180.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="240.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="300.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="360.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="420.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="480.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="540.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="600.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <Line endX="893.0" layoutX="424.0" layoutY="660.0" startX="-100.0" stroke="#0000004b" translateY="34.0" />
-      <ListView fx:id="eventList" onDragDetected="#unplacedListDragStart" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="720.0" prefWidth="284.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="32.0">
-         <contextMenu>
-            <ContextMenu>
-              <items>
-                  <MenuItem mnemonicParsing="false" onAction="#listViewAction" text="View Course" />
-                <MenuItem mnemonicParsing="false" onAction="#unplacedListEditCourse" text="Edit Course" />
-              </items>
-            </ContextMenu>
-         </contextMenu></ListView>
-      <HBox layoutX="324.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="995.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="323.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
+      <VBox prefHeight="720.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="324.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
+         <children>
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+            <Line endX="893.0" startX="-100.0" stroke="#0000004b" />
+            <Pane prefHeight="200.0" prefWidth="200.0" />
+         </children>
+      </VBox>
+      <HBox layoutY="32.0" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="32.0">
+         <children>
+            <ListView fx:id="eventList" minHeight="0.0" minWidth="25.0" onDragDetected="#unplacedListDragStart" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="720.0" prefWidth="284.0">
+               <contextMenu>
+                  <ContextMenu>
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#listViewAction" text="View Course" />
+                      <MenuItem mnemonicParsing="false" onAction="#unplacedListEditCourse" text="Edit Course" />
+                    </items>
+                  </ContextMenu>
+               </contextMenu>
+            </ListView>
+         </children>
+      </HBox>
+      <HBox layoutX="324.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="-Infinity" prefHeight="720.0" prefWidth="995.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="323.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
          <children>
             <VBox id="Monday" fx:id="mondayBox" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="200.0" prefWidth="100.0" style="-fx-border-color: black;" HBox.hgrow="ALWAYS" />
             <VBox id="Tuesday" fx:id="tuesdayBox" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="200.0" prefWidth="100.0" style="-fx-border-color: black;" HBox.hgrow="ALWAYS" />
@@ -48,20 +71,20 @@
             <VBox id="Friday" fx:id="fridayBox" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="200.0" prefWidth="100.0" style="-fx-border-color: black;" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
-      <VBox layoutX="283.0" prefHeight="720.0" prefWidth="40.0" AnchorPane.topAnchor="32.0">
+      <VBox layoutX="283.0" prefHeight="720.0" prefWidth="40.0" AnchorPane.bottomAnchor="0.0" AnchorPane.topAnchor="32.0">
          <children>
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="8am" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="9am" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="10am" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="11am" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="12pm" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="1pm" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="2pm" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="3pm" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="4pm" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="5pm" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="6pm" VBox.vgrow="ALWAYS" />
-            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="7pm" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="8am" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="9am" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="10am" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="11am" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="12pm" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="1pm" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="2pm" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="3pm" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="4pm" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="5pm" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="6pm" VBox.vgrow="ALWAYS" />
+            <Label alignment="TOP_RIGHT" contentDisplay="RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" text="7pm" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
       <MenuBar layoutY="-2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

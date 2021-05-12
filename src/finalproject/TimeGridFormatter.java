@@ -22,13 +22,15 @@ public class TimeGridFormatter {
     
     private final FXMLDocumentController parent;
     private final LocalTime minimumTime;
+    private final LocalTime maximumTime;
     
     private final double hourHeight = 60.0;
     private final double timeGridFontSize = 15.0;
     
-    public TimeGridFormatter(FXMLDocumentController parent, LocalTime minimumTime) {
+    public TimeGridFormatter(FXMLDocumentController parent, LocalTime minimumTime, LocalTime maximumTime) {
         this.parent = parent;
         this.minimumTime = minimumTime;
+        this.maximumTime = maximumTime;
     }
     
     public ArrayList<Node> formatDay(Course.Day d, ArrayList<Course> dayEvents, AppConfig a) {
@@ -56,6 +58,7 @@ public class TimeGridFormatter {
             }
             conflicts.clear();
         }
+        nodes.add(getTimeGridBuffer(previousEnd.until(maximumTime, ChronoUnit.MINUTES)));
         
         return nodes;
     }
