@@ -96,7 +96,7 @@ public class TimeGridFormatter {
         b.setId(id);
         b.setOnAction((ae) -> parent.timeGridEventAction(ae));
         if(!disabled){
-            b.setStyle("-fx-background-color: #"+ courseColor + "; -fx-font-color: #");
+            b.setStyle("-fx-background-color: #"+ courseColor);
             b.setTextFill(colorObject.invert());
         }
         if(!disabled && !locked) b.setOnDragDetected((me) -> parent.timeGridDragStart(me));
