@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ResourceBundle;
+import java.util.Set;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -35,6 +36,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -493,6 +495,10 @@ public class FXMLDocumentController implements Initializable {
         courseCreatorController.clearFields();
         courseCreatorStage.showAndWait();
         Course c = courseCreatorController.getCourse();
+        //Check for prof color
+        if(!config.isRegistered(c)){
+            config.setProfessorColor(c, config.getRandomColor());
+        }
         if(c.getCourseNumber().equals("")) return;
         unplacedEvents.add(c);
         updateUnplacedEvents();
@@ -508,6 +514,10 @@ public class FXMLDocumentController implements Initializable {
         courseEditorController.clearFields();
         courseEditorController.edit(c);
         courseEditorStage.showAndWait();
+        //Check for prof color
+        if(!config.isRegistered(c)){
+            config.setProfessorColor(c, config.getRandomColor());
+        }
         
         if(unplacedEvents.contains(c) && !c.getScheduledTimes().isEmpty()) {
             unplacedEvents.remove(c);
@@ -552,8 +562,8 @@ public class FXMLDocumentController implements Initializable {
     private EditColorFXMLController editColorController;
     
     public void openColorEditor(){
-        editColorController.setProfessors(placedEvents);
         editColorController.setConfig(getConfig());
+        editColorController.setProfessors();
         colorEditorStage.showAndWait();
     }
     

@@ -49,11 +49,7 @@ public class EditColorFXMLController implements Initializable {
     }
     
     @FXML public void applyBtnAction(){
-        if(config.contains(selectedProf)){
-            config.editColor(selectedProf,selectedColor);
-        }else{
-            config.setProfessorColor(selectedProf,selectedColor);        
-        }
+        config.editColor(selectedProf, selectedColor);
     }
     
     @FXML public void selectProfessorAction(){
@@ -65,17 +61,11 @@ public class EditColorFXMLController implements Initializable {
         }
     }
     
-    public void setProfessors(ArrayList<Course> placedEvents){
-        for(Course c: placedEvents){
-          if(professors.contains(c.getFacultyLname())){
-              continue;
-          }
-          if(c.getFacultyLname() != "" || c.getFacultyLname() != null){
-            addProf(c.getFacultyLname());
-          }
-        }
+    public void setProfessors(){
+
         professorList.getItems().clear();
-        professorList.getItems().addAll(professors);
+        professorList.getItems().addAll(config.getProfessors());
+        professorList.getItems().remove("");
     }
     
 
