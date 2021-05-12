@@ -31,7 +31,7 @@ public class TimeGridFormatter {
         this.minimumTime = minimumTime;
     }
     
-    public ArrayList<Node> formatDay(Course.Day d, ArrayList<Course> dayEvents) {
+    public ArrayList<Node> formatDay(Course.Day d, ArrayList<Course> dayEvents, AppConfig a) {
         ArrayList<Node> nodes = new ArrayList<>();
         LocalTime previousEnd = minimumTime;
         
@@ -46,10 +46,10 @@ public class TimeGridFormatter {
                 }
             }
             if(conflicts.isEmpty()) {
-                nodes.add(getTimeGridCourse(dayEvents.get(i), d));
+                nodes.add(getTimeGridCourse(dayEvents.get(i), d, a));
                 previousEnd = dayEvents.get(i).getEndTime(d);
             } else {
-                nodes.add(getTimeGridConflictNode(conflicts, d, conflicts.get(0).getStartTime(d)));
+                nodes.add(getTimeGridConflictNode(conflicts, d, conflicts.get(0).getStartTime(d), a));
                 for(Course c : conflicts) {
                     if(c.getEndTime(d).isAfter(previousEnd)) previousEnd = c.getEndTime(d);
                 }
@@ -63,9 +63,17 @@ public class TimeGridFormatter {
     private Button getTimeGridBuffer(long duration) {
         return getTimeGridNode("", (int)duration, true, false, "",null, null);
     }
-    private Button getTimeGridCourse(Course c, Course.Day d) {
+    private Button getTimeGridCourse(Course c, Course.Day d, AppConfig a) {
+        Color color = c.getColor();
+        if(color.equals(Color.WHITE)){
+            color = a.getColor(c);
+            if(color == null){
+                color = Color.WHITE;
+            }
+        }
        //System.out.println(c.getColorString());
-        return getTimeGridNode(c.getFormattedText(), c.getDurationMinutes(d), false, c.getLockedCourse(), d.getValue(),c.getColorString(), c.getColor());
+        
+        return getTimeGridNode(c.getFormattedText(), c.getDurationMinutes(d), false, c.getLockedCourse(), d.getValue(), color.toString().substring(2,8), color);
     }
     
     /**
@@ -118,7 +126,7 @@ public class TimeGridFormatter {
      * @param previousEnd
      * @return 
      */
-    private HBox getTimeGridConflictNode(ArrayList<Course> conflictingCourses, Course.Day d, LocalTime previousEnd) {
+    private HBox getTimeGridConflictNode(ArrayList<Course> conflictingCourses, Course.Day d, LocalTime previousEnd, AppConfig a) {
         HBox container = new HBox();
         ArrayList<ArrayList<Course>> sets = new ArrayList<>();
         
@@ -148,7 +156,7 @@ public class TimeGridFormatter {
             LocalTime prevEnd = previousEnd;
             for(Course c : sets.get(i)) {
                 if(c.getStartTime(d).isAfter(prevEnd)) items.add(getTimeGridBuffer(prevEnd.until(c.getStartTime(d), ChronoUnit.MINUTES)));
-                items.add(getTimeGridCourse(c, d));
+                items.add(getTimeGridCourse(c, d, a));
                 prevEnd = c.getEndTime(d);
             }
             

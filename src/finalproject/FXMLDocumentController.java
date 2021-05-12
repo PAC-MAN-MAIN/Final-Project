@@ -463,7 +463,7 @@ public class FXMLDocumentController implements Initializable {
         ObservableList<Node> dayChildren = dayBox.getChildren();
         dayChildren.clear();
         
-        dayChildren.addAll(tgf.formatDay(d, dayEvents));
+        dayChildren.addAll(tgf.formatDay(d, dayEvents, config));
     }
     
     /**
@@ -661,6 +661,14 @@ public class FXMLDocumentController implements Initializable {
             if(change.getControlNewText().length() > 5) change.setText("");
             return change;
         }));
+        
+        config.registerCourse(c1);
+        config.registerCourse(c2);
+        config.registerCourse(c3);
+        config.registerCourse(c4);
+        config.registerCourse(c5);
+        config.registerCourse(c6);
+        updateTimeGrid();
     }
     
     private void initializePopups() {
