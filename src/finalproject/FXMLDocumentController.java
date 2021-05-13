@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-import java.util.Set;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -495,8 +494,7 @@ public class FXMLDocumentController implements Initializable {
         
         dayChildren.addAll(tgf.formatDay(d, dayEvents, config));
         dayChildren.forEach((node) -> {
-            if(node instanceof Button) if(!((Button)node).isDisabled()) return;
-            VBox.setVgrow(node, Priority.ALWAYS);
+            VBox.setVgrow(node, Priority.NEVER);
         });
     }
     
@@ -613,6 +611,11 @@ public class FXMLDocumentController implements Initializable {
     }
     public void closeDayGroupViewer() {
         dayGroupStage.close();
+    }
+    
+    public void modifyRatio(double ratio) {
+        tgf.modifyRatio(ratio);
+        updateTimeGrid();
     }
     
   //--Init-and-Init-Events------------------------------------------------

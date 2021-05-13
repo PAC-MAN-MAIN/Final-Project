@@ -27,6 +27,8 @@ public class TimeGridFormatter {
     private final double hourHeight = 60.0;
     private final double timeGridFontSize = 15.0;
     
+    private double ratio = 1.0;
+    
     public TimeGridFormatter(FXMLDocumentController parent, LocalTime minimumTime, LocalTime maximumTime) {
         this.parent = parent;
         this.minimumTime = minimumTime;
@@ -116,7 +118,7 @@ public class TimeGridFormatter {
         
         // Custom settings
             double factor = minutes / 60d;
-            double height = hourHeight * factor;
+            double height = hourHeight * factor * ratio;
         b.setPrefHeight(height);
         b.setText(text);
         b.setDisable(disabled);
@@ -171,6 +173,10 @@ public class TimeGridFormatter {
         }
         
         return container;
+    }
+    
+    public void modifyRatio(double r) {
+        ratio *= r;
     }
     
 }
