@@ -47,7 +47,7 @@ public class AppConfig implements Serializable{
     
     
     
-    private String getFullName(Course c){
+    public String getFullName(Course c){
         return c.getFacultyFname()+" "+c.getFacultyLname();
     }
     public Color getColor(Course c){
@@ -88,6 +88,10 @@ public class AppConfig implements Serializable{
         } else{
             setProfessorColor(c,getRandomColor());
         } 
+    }
+    
+    public void unregisterProfessor(String s) {
+        professorColors.remove(s);
     }
     
     public Color getRandomColor(){

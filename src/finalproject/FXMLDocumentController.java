@@ -415,6 +415,27 @@ public class FXMLDocumentController implements Initializable {
         updateTimeGrid();
     }
     
+    @FXML public void deleteAllMenuAction() {
+        final String saveButtonText = "Save First";
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+            a.setHeaderText("Are you sure?");
+            a.setContentText("This will delete all courses both scheduled and unscheduled.");
+            a.getButtonTypes().add(new ButtonType(saveButtonText));
+            a.setWidth(a.getWidth() + 1000);
+        a.showAndWait();
+        switch(a.getResult().getText()) {
+            case "Cancel": return;
+            case saveButtonText: menuSaveAsAction();
+            case "OK": {
+                placedEvents.clear();
+                unplacedEvents.clear();
+                config.getProfessors().forEach(prof -> config.unregisterProfessor(prof));
+                updateTimeGrid();
+                updateUnplacedEvents();
+            }
+        }
+    }
+    
   //--Utiliy--------------------------------------------------------------------
     
     /**
@@ -506,8 +527,33 @@ public class FXMLDocumentController implements Initializable {
         placedEvents.remove(c);
         unplacedEvents.remove(c);
         
+        unregisterProfIfAlone(config.getFullName(c));
+        
         updateTimeGrid();
         updateUnplacedEvents();
+    }
+    
+    /**
+     * Will check a passed in string to see if it matches the professor of any other classes in placed or unplaced lists and deregister it from the prof color config if not
+     * @param s 
+     */
+    private void unregisterProfIfAlone(String s) {
+        boolean alone = true;
+        for(Course course : placedEvents) {
+            if(config.getFullName(course).equals(s)) {
+                alone = false;
+                break;
+            }
+        } if(alone) {
+            for(Course course : unplacedEvents) {
+                if(config.getFullName(course).equals(s)) {
+                    alone = false;
+                    break;
+                }
+            } if(alone) {
+                config.unregisterProfessor(s);
+            }
+        } 
     }
     
     /**
@@ -528,9 +574,7 @@ public class FXMLDocumentController implements Initializable {
         courseCreatorStage.showAndWait();
         Course c = courseCreatorController.getCourse();
         //Check for prof color
-        if(!config.isRegistered(c)){
-            config.setProfessorColor(c, config.getRandomColor());
-        }
+        config.registerCourse(c);
         if(c.getCourseNumber().equals("")) return;
         unplacedEvents.add(c);
         updateUnplacedEvents();
@@ -543,12 +587,14 @@ public class FXMLDocumentController implements Initializable {
     private EditClassFXMLController courseEditorController;
     
     public void openCourseEditor(Course c) {
+        String oldProf = config.getFullName(c);
         courseEditorController.clearFields();
         courseEditorController.edit(c);
         courseEditorStage.showAndWait();
         //Check for prof color
-        if(!config.isRegistered(c)){
-            config.setProfessorColor(c, config.getRandomColor());
+        if(!oldProf.equals(config.getFullName(c))) {
+            config.registerCourse(c);
+            unregisterProfIfAlone(oldProf);
         }
         
         if(unplacedEvents.contains(c) && !c.getScheduledTimes().isEmpty()) {
