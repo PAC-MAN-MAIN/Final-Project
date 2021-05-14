@@ -8,6 +8,7 @@ package finalproject;
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.scene.paint.Color; 
@@ -68,7 +69,7 @@ public class Course implements Comparable<Course>,Serializable {
         String getValue() {return value;}
     }
     
-    public Course(String term, String courseNum, String courseTitle, String CORE, String LARC, boolean FYappropriate, String facultyLastName, String facultyFirstName, boolean adjunct, double semesterHrs, double scheduledHrs, int capacity, boolean isLocked, MeetingMethod meetingMethod, String notes, CourseLength courseLength){
+    public Course(String term, String courseNum, String courseTitle, String CORE, String LARC, boolean FYappropriate, String facultyLastName, String facultyFirstName, boolean adjunct, double semesterHrs, double scheduledHrs, int capacity, boolean isLocked, MeetingMethod meetingMethod, String notes, CourseLength courseLength, Map<Day, LocalTime[]> scheduledTimes, SerialColor color){
         courseTerm = term;
         courseNumber = courseNum;
         this.courseTitle = courseTitle;
@@ -298,6 +299,16 @@ public class Course implements Comparable<Course>,Serializable {
     @Override
     public int compareTo(Course o) {
         return courseNumber.compareTo(o.getCourseNumber());
+    }
+    
+    @Override
+    public Course clone() {
+        final HashMap<Day, LocalTime[]> scheduledTimes = new HashMap<>();
+        this.scheduledTimes.forEach((day, times) -> {
+            LocalTime[] timesClone = Arrays.copyOf(times, times.length);
+            scheduledTimes.put(day, timesClone);
+        });
+        return new Course(courseTerm, courseNumber, courseTitle, COREdesignation, LARCdesignation, FYappropriate, facultyLname, facultyFname, adjunct, semesterHours, scheduledHours, maxCapacity, locked, meetingMethod, courseNotes, courseLength, scheduledTimes, color);
     }
     
 }

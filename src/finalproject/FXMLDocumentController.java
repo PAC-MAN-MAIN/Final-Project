@@ -295,7 +295,15 @@ public class FXMLDocumentController implements Initializable {
     }
     
     @FXML public void unplacedListEditCourse() {
-        openCourseEditor(unplacedEvents.get(eventList.getSelectionModel().getSelectedIndex()));
+        Course c = (Course) eventList.getSelectionModel().getSelectedItem();
+            if(c == null) return;
+        openCourseEditor(c);
+    }
+    @FXML public void unplacedListCopyCourse() {
+        Course selected = (Course) eventList.getSelectionModel().getSelectedItem();
+            if(selected == null) return;
+        unplacedEvents.add(selected.clone());
+        updateUnplacedEvents();
     }
     
     @FXML public void menuSaveAction() {
@@ -464,6 +472,7 @@ public class FXMLDocumentController implements Initializable {
      */
     private void updateUnplacedEvents() {
         unplacedEvents.sort((Course c1, Course c2) -> c1.getCourseNumber().compareTo(c2.getCourseNumber()));
+        eventList.setItems(FXCollections.observableArrayList());
         eventList.setItems(FXCollections.observableArrayList(unplacedEvents));
     }
     

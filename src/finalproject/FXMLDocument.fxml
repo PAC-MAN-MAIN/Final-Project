@@ -47,20 +47,17 @@
             <Pane prefHeight="200.0" prefWidth="200.0" />
          </children>
       </VBox>
-      <HBox layoutY="32.0" minHeight="0.0" minWidth="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="32.0">
-         <children>
-            <ListView fx:id="eventList" minHeight="0.0" minWidth="25.0" onDragDetected="#unplacedListDragStart" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="720.0" prefWidth="284.0">
-               <contextMenu>
-                  <ContextMenu>
-                    <items>
-                        <MenuItem mnemonicParsing="false" onAction="#listViewAction" text="View Course" />
-                      <MenuItem mnemonicParsing="false" onAction="#unplacedListEditCourse" text="Edit Course" />
-                    </items>
-                  </ContextMenu>
-               </contextMenu>
-            </ListView>
-         </children>
-      </HBox>
+      <ListView fx:id="eventList" layoutY="32.0" minHeight="0.0" minWidth="25.0" onDragDetected="#unplacedListDragStart" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="720.0" prefWidth="284.0">
+         <contextMenu>
+            <ContextMenu>
+              <items>
+                  <MenuItem mnemonicParsing="false" onAction="#listViewAction" text="View Course" />
+                <MenuItem mnemonicParsing="false" onAction="#unplacedListEditCourse" text="Edit Course" />
+                  <MenuItem mnemonicParsing="false" onAction="#unplacedListCopyCourse" text="Copy Course" />
+              </items>
+            </ContextMenu>
+         </contextMenu>
+      </ListView>
       <HBox layoutX="324.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="-Infinity" prefHeight="720.0" prefWidth="995.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="323.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="32.0">
          <children>
             <VBox id="Monday" fx:id="mondayBox" onDragDropped="#timeGridDragStop" onDragOver="#timeGridDragAccept" prefHeight="200.0" prefWidth="100.0" style="-fx-border-color: black;" HBox.hgrow="ALWAYS" />
