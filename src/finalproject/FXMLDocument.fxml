@@ -158,7 +158,6 @@
             </Menu>
             <Menu mnemonicParsing="false" onShown="#updateProfessorListMenuAction" text="Professor Color">
               <items>
-                <MenuItem mnemonicParsing="false" onAction="#colorMenuAction" text="Edit Colors" visible="false" />
                   <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
                      <content>
                         <ComboBox fx:id="professorCombo" onAction="#updateProfessorColorPickerAction" prefWidth="150.0" promptText="Choose Professor" />

@@ -403,9 +403,6 @@ public class FXMLDocumentController implements Initializable {
         updateUnplacedEvents();
     }
     
-    @FXML public void colorMenuAction(){
-        openColorEditor();
-    }
     @FXML public void updateProfessorListMenuAction() {
         professorCombo.getSelectionModel().clearSelection();
         professorCombo.setItems(FXCollections.observableArrayList(config.getProfessors()));
@@ -645,18 +642,6 @@ public class FXMLDocumentController implements Initializable {
         filterGUIStage.close();
     }
     
-    private final Stage colorEditorStage = new Stage();
-    private EditColorFXMLController editColorController;
-    
-    public void openColorEditor(){
-        editColorController.setConfig(getConfig());
-        editColorController.setProfessors();
-        colorEditorStage.showAndWait();
-    }
-    public void closeColorEditor(){
-        colorEditorStage.close();
-    }
-    
     private final Stage dayGroupStage = new Stage();
     private DayGroupFXMLController dayGroupController;
     
@@ -683,18 +668,19 @@ public class FXMLDocumentController implements Initializable {
             courseViewerStage.setTitle("Course Scheduler - Course Viewer");
             filterGUIStage.setTitle("Course Scheduler - Filter Editor");
             dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
-            colorEditorStage.setTitle("Course Scheduler - Color Editor");
             
         String documentsPath = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
             saveFilepath = documentsPath;
             exportFilepath = documentsPath;
             
-            LocalTime[] times = new LocalTime[11];
-            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of(i + 8, 0);
-        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, times, 50, "MWF Standard"));
-            times = new LocalTime[8];
-            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of((int)Math.floor(i * 1.5) + 8, (i % 2) * 30);
-        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, times, 75));
+            
+            // Everything below this line is for generating examples
+//            LocalTime[] times = new LocalTime[11];
+//            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of(i + 8, 0);
+//        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, times, 50, "MWF Standard"));
+//            times = new LocalTime[8];
+//            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of((int)Math.floor(i * 1.5) + 8, (i % 2) * 30);
+//        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, times, 75));
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -705,65 +691,65 @@ public class FXMLDocumentController implements Initializable {
 //        }
         
         //My schedule
-        Course c1 = new Course();
-            c1.setCourseNumber("INTD-405");
-            c1.setFacultyLname("Smith");
-            c1.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
-            c1.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
-            c1.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
-        Course c2 = new Course();
-            c2.setCourseNumber("PHIL-215");
-            c2.setFacultyLname("Krull");
-            c2.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
-            c2.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
-            c2.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
-        Course c3 = new Course();
-            c3.setCourseNumber("MUS-131");
-            c3.setFacultyLname("Lynn");
-            c3.setScheuledTimes(Course.Day.T, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
-            c3.setScheuledTimes(Course.Day.R, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
-        Course c4 = new Course();
-            c4.setCourseNumber("MUS-130");
-            c4.setFacultyLname("Lynn");
-            c4.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
-            c4.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
-            c4.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
-        Course c5 = new Course();
-            c5.setCourseNumber("CPTR-422");
-            c5.setFacultyLname("Mitchell");
-            c5.setFacultyFname("Robin");
-            c5.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
-            c5.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
-            c5.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
-        
-        placedEvents.add(c1);
-        placedEvents.add(c2);
-        placedEvents.add(c3);
-        placedEvents.add(c4);
-        placedEvents.add(c5);
-        
-        updateTimeGrid();
-        
-        Course c6 = new Course();
-            c6.setCourseNumber("UNPLD-001");
-            c6.setFacultyLname("STAFF");
-        unplacedEvents.add(c6);
-        
-        updateUnplacedEvents();
-        
-        autoplacePrefField.setTextFormatter(new TextFormatter<>(change -> {
-            if(!change.getText().matches("[0-9,:]*")) change.setText("");
-            if(change.getControlNewText().length() > 5) change.setText("");
-            return change;
-        }));
-        
-        config.registerCourse(c1);
-        config.registerCourse(c2);
-        config.registerCourse(c3);
-        config.registerCourse(c4);
-        config.registerCourse(c5);
-        config.registerCourse(c6);
-        updateTimeGrid();
+//        Course c1 = new Course();
+//            c1.setCourseNumber("INTD-405");
+//            c1.setFacultyLname("Smith");
+//            c1.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+//            c1.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+//            c1.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+//        Course c2 = new Course();
+//            c2.setCourseNumber("PHIL-215");
+//            c2.setFacultyLname("Krull");
+//            c2.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+//            c2.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+//            c2.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+//        Course c3 = new Course();
+//            c3.setCourseNumber("MUS-131");
+//            c3.setFacultyLname("Lynn");
+//            c3.setScheuledTimes(Course.Day.T, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
+//            c3.setScheuledTimes(Course.Day.R, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
+//        Course c4 = new Course();
+//            c4.setCourseNumber("MUS-130");
+//            c4.setFacultyLname("Lynn");
+//            c4.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+//            c4.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+//            c4.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+//        Course c5 = new Course();
+//            c5.setCourseNumber("CPTR-422");
+//            c5.setFacultyLname("Mitchell");
+//            c5.setFacultyFname("Robin");
+//            c5.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+//            c5.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+//            c5.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+//        
+//        placedEvents.add(c1);
+//        placedEvents.add(c2);
+//        placedEvents.add(c3);
+//        placedEvents.add(c4);
+//        placedEvents.add(c5);
+//        
+//        updateTimeGrid();
+//        
+//        Course c6 = new Course();
+//            c6.setCourseNumber("UNPLD-001");
+//            c6.setFacultyLname("STAFF");
+//        unplacedEvents.add(c6);
+//        
+//        updateUnplacedEvents();
+//        
+//        autoplacePrefField.setTextFormatter(new TextFormatter<>(change -> {
+//            if(!change.getText().matches("[0-9,:]*")) change.setText("");
+//            if(change.getControlNewText().length() > 5) change.setText("");
+//            return change;
+//        }));
+//        
+//        config.registerCourse(c1);
+//        config.registerCourse(c2);
+//        config.registerCourse(c3);
+//        config.registerCourse(c4);
+//        config.registerCourse(c5);
+//        config.registerCourse(c6);
+//        updateTimeGrid();
     }
     
     private void initializePopups() {
@@ -805,16 +791,6 @@ public class FXMLDocumentController implements Initializable {
             filterGUIStage.setScene(new Scene(root));
             filterGUIController.setStage(filterGUIStage);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try { 
-            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("EditColorFXML.fxml"));
-            Parent root = loader.load();
-            editColorController = loader.getController();
-            
-            colorEditorStage.setScene(new Scene(root));
-           editColorController.setStage(colorEditorStage);            
-        } catch (Exception e){
             e.printStackTrace();
         }
         try {
