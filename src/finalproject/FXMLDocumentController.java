@@ -225,8 +225,8 @@ public class FXMLDocumentController implements Initializable {
                 a.showAndWait();
             DayGroup group = getChosenGroup(a.getResult(), groupOptions);
             if(group == null) {
-                group = groupOptions.get(0);
-                group = new DayGroup(new Course.Day[] {day}, new LocalTime[] {dropTime}, group.getDuration());
+                int defaultDuration = 50;
+                group = new DayGroup(new Course.Day[] {day}, new LocalTime[] {dropTime}, defaultDuration);
             } else {
                 long shortest = Long.MAX_VALUE;
                 LocalTime tempTime = group.getStartTimes().get(0); // If placed before the earliest time, will use earliest time
