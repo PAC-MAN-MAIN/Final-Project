@@ -131,7 +131,7 @@ public class EditClassFXMLController implements Initializable {
                     a.setContentText(message.trim());
                     a.showAndWait();
             }
-            System.out.println(message);
+//            System.out.println(message);
             return out;
         }
         private Map<Course.Day, LocalTime[]> getTimes() throws Exception{

@@ -26,6 +26,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -34,10 +36,13 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import javax.swing.filechooser.FileSystemView;
 
 /**
  *
@@ -57,12 +62,14 @@ public class FXMLDocumentController implements Initializable {
     @FXML VBox thursdayBox;
     @FXML VBox fridayBox;
     @FXML TextField autoplacePrefField;
+    @FXML ComboBox professorCombo;
+    @FXML ColorPicker professorColor;
     
     private ArrayList<Course> placedEvents = new ArrayList<>();
     private ArrayList<Course> unplacedEvents = new ArrayList<>();
     private AppConfig config = new AppConfig();
     
-    private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime);
+    private TimeGridFormatter tgf = new TimeGridFormatter(this, minimumTime, maximumTime);
     private FilterGUI filter = new FilterGUI();
     private AutoPlacer2 autoPlacer = new AutoPlacer2();
     
@@ -152,16 +159,24 @@ public class FXMLDocumentController implements Initializable {
                 if(fromDay == null) return;
             LocalTime[] fromTimes = c.getScheduledTimes(fromDay);
             
-            c.setScheuledTimes(fromDay, new LocalTime[]{LocalTime.of(hour, minute), LocalTime.of(hour, minute).plusMinutes(c.getDurationMinutes(fromDay))});
 
             VBox destination = (VBox) e.getSource();
             Course.Day toDay = fromDay;
             if(!source.getId().equals(destination.getId())) {
                 toDay = getDayFromId(destination.getId());
-                shiftEventDay(fromDay, toDay, c);
+                if(c.getScheduledTimes(toDay) != null) {
+                    Alert a = new Alert(Alert.AlertType.ERROR);
+                        a.setHeaderText("Course Already Scheduled For Day");
+                        a.setContentText("Courses cannot be scheduled twice on the same day");
+                        a.showAndWait();
+                    return;
+                }
             }
+            c.setScheuledTimes(fromDay, new LocalTime[]{LocalTime.of(hour, minute), LocalTime.of(hour, minute).plusMinutes(c.getDurationMinutes(fromDay))});
+            if(!toDay.equals(fromDay)) shiftEventDay(fromDay, toDay, c);
             
             ArrayList<Course> conflicts = getConflicts(c, toDay);
+            conflicts.remove(c);
             if(!conflicts.isEmpty()) {
                 String content = "";
                     for(Course check : conflicts) {
@@ -210,8 +225,8 @@ public class FXMLDocumentController implements Initializable {
                 a.showAndWait();
             DayGroup group = getChosenGroup(a.getResult(), groupOptions);
             if(group == null) {
-                group = groupOptions.get(0);
-                group = new DayGroup(new Course.Day[] {day}, new LocalTime[] {dropTime}, group.getDuration());
+                int defaultDuration = 50;
+                group = new DayGroup(new Course.Day[] {day}, new LocalTime[] {dropTime}, defaultDuration);
             } else {
                 long shortest = Long.MAX_VALUE;
                 LocalTime tempTime = group.getStartTimes().get(0); // If placed before the earliest time, will use earliest time
@@ -280,11 +295,19 @@ public class FXMLDocumentController implements Initializable {
     }
     
     @FXML public void unplacedListEditCourse() {
-        openCourseEditor(unplacedEvents.get(eventList.getSelectionModel().getSelectedIndex()));
+        Course c = (Course) eventList.getSelectionModel().getSelectedItem();
+            if(c == null) return;
+        openCourseEditor(c);
+    }
+    @FXML public void unplacedListCopyCourse() {
+        Course selected = (Course) eventList.getSelectionModel().getSelectedItem();
+            if(selected == null) return;
+        unplacedEvents.add(selected.clone());
+        updateUnplacedEvents();
     }
     
     @FXML public void menuSaveAction() {
-        if(saveFilepath.isEmpty()) {
+        if(saveFilepath.isEmpty() || saveFilename.isEmpty()) {
             menuSaveAsAction();
             return;
         }
@@ -335,7 +358,7 @@ public class FXMLDocumentController implements Initializable {
             updateUnplacedEvents();
         }
     @FXML public void menuExportAction() {
-        if(exportFilepath.isEmpty()) {
+        if(exportFilepath.isEmpty() || exportFilename.isEmpty()) {
             menuExportAsAction();
             return;
         }
@@ -380,8 +403,42 @@ public class FXMLDocumentController implements Initializable {
         updateUnplacedEvents();
     }
     
-    @FXML public void colorMenuAction(){
-        openColorEditor();
+    @FXML public void updateProfessorListMenuAction() {
+        professorCombo.getSelectionModel().clearSelection();
+        professorCombo.setItems(FXCollections.observableArrayList(config.getProfessors()));
+        professorCombo.getItems().remove("");
+    }
+    @FXML public void updateProfessorColorPickerAction() {
+        String prof = professorCombo.getSelectionModel().getSelectedItem().toString();
+        Color color = config.getColor(prof);
+        professorColor.setValue(color);
+        professorCombo.hide();
+    }
+    @FXML public void updateProfessorColorAction() {
+        if(professorCombo.getSelectionModel().isEmpty()) return;
+        config.editColor(professorCombo.getSelectionModel().getSelectedItem().toString(), professorColor.getValue());
+        updateTimeGrid();
+    }
+    
+    @FXML public void deleteAllMenuAction() {
+        final String saveButtonText = "Save First";
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+            a.setHeaderText("Are you sure?");
+            a.setContentText("This will delete all courses both scheduled and unscheduled.");
+            a.getButtonTypes().add(new ButtonType(saveButtonText));
+            a.setWidth(a.getWidth() + 1000);
+        a.showAndWait();
+        switch(a.getResult().getText()) {
+            case "Cancel": return;
+            case saveButtonText: menuSaveAsAction();
+            case "OK": {
+                placedEvents.clear();
+                unplacedEvents.clear();
+                config.getProfessors().forEach(prof -> config.unregisterProfessor(prof));
+                updateTimeGrid();
+                updateUnplacedEvents();
+            }
+        }
     }
     
   //--Utiliy--------------------------------------------------------------------
@@ -412,6 +469,7 @@ public class FXMLDocumentController implements Initializable {
      */
     private void updateUnplacedEvents() {
         unplacedEvents.sort((Course c1, Course c2) -> c1.getCourseNumber().compareTo(c2.getCourseNumber()));
+        eventList.setItems(FXCollections.observableArrayList());
         eventList.setItems(FXCollections.observableArrayList(unplacedEvents));
     }
     
@@ -461,7 +519,10 @@ public class FXMLDocumentController implements Initializable {
         ObservableList<Node> dayChildren = dayBox.getChildren();
         dayChildren.clear();
         
-        dayChildren.addAll(tgf.formatDay(d, dayEvents));
+        dayChildren.addAll(tgf.formatDay(d, dayEvents, config));
+        dayChildren.forEach((node) -> {
+            VBox.setVgrow(node, Priority.NEVER);
+        });
     }
     
     /**
@@ -472,8 +533,33 @@ public class FXMLDocumentController implements Initializable {
         placedEvents.remove(c);
         unplacedEvents.remove(c);
         
+        unregisterProfIfAlone(config.getFullName(c));
+        
         updateTimeGrid();
         updateUnplacedEvents();
+    }
+    
+    /**
+     * Will check a passed in string to see if it matches the professor of any other classes in placed or unplaced lists and deregister it from the prof color config if not
+     * @param s 
+     */
+    private void unregisterProfIfAlone(String s) {
+        boolean alone = true;
+        for(Course course : placedEvents) {
+            if(config.getFullName(course).equals(s)) {
+                alone = false;
+                break;
+            }
+        } if(alone) {
+            for(Course course : unplacedEvents) {
+                if(config.getFullName(course).equals(s)) {
+                    alone = false;
+                    break;
+                }
+            } if(alone) {
+                config.unregisterProfessor(s);
+            }
+        } 
     }
     
     /**
@@ -493,6 +579,8 @@ public class FXMLDocumentController implements Initializable {
         courseCreatorController.clearFields();
         courseCreatorStage.showAndWait();
         Course c = courseCreatorController.getCourse();
+        //Check for prof color
+        config.registerCourse(c);
         if(c.getCourseNumber().equals("")) return;
         unplacedEvents.add(c);
         updateUnplacedEvents();
@@ -505,9 +593,15 @@ public class FXMLDocumentController implements Initializable {
     private EditClassFXMLController courseEditorController;
     
     public void openCourseEditor(Course c) {
+        String oldProf = config.getFullName(c);
         courseEditorController.clearFields();
         courseEditorController.edit(c);
         courseEditorStage.showAndWait();
+        //Check for prof color
+        if(!oldProf.equals(config.getFullName(c))) {
+            config.registerCourse(c);
+            unregisterProfIfAlone(oldProf);
+        }
         
         if(unplacedEvents.contains(c) && !c.getScheduledTimes().isEmpty()) {
             unplacedEvents.remove(c);
@@ -548,19 +642,6 @@ public class FXMLDocumentController implements Initializable {
         filterGUIStage.close();
     }
     
-    private final Stage colorEditorStage = new Stage();
-    private EditColorFXMLController editColorController;
-    
-    public void openColorEditor(){
-        editColorController.setProfessors(placedEvents);
-        editColorController.setConfig(getConfig());
-        colorEditorStage.showAndWait();
-    }
-    
-    public void closeColorEditor(){
-        colorEditorStage.close();
-    }
-    
     private final Stage dayGroupStage = new Stage();
     private DayGroupFXMLController dayGroupController;
     
@@ -570,6 +651,11 @@ public class FXMLDocumentController implements Initializable {
     }
     public void closeDayGroupViewer() {
         dayGroupStage.close();
+    }
+    
+    public void modifyRatio(double ratio) {
+        tgf.modifyRatio(ratio);
+        updateTimeGrid();
     }
     
   //--Init-and-Init-Events------------------------------------------------
@@ -582,14 +668,19 @@ public class FXMLDocumentController implements Initializable {
             courseViewerStage.setTitle("Course Scheduler - Course Viewer");
             filterGUIStage.setTitle("Course Scheduler - Filter Editor");
             dayGroupStage.setTitle("Course Scheduler - Day Group Editor");
-            colorEditorStage.setTitle("Course Scheduler - Color Editor");
             
-            LocalTime[] times = new LocalTime[11];
-            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of(i + 8, 0);
-        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, times, 50, "MWF Standard"));
-            times = new LocalTime[8];
-            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of((int)Math.floor(i * 1.5) + 8, (i % 2) * 30);
-        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, times, 75));
+        String documentsPath = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+            saveFilepath = documentsPath;
+            exportFilepath = documentsPath;
+            
+            
+            // Everything below this line is for generating examples
+//            LocalTime[] times = new LocalTime[11];
+//            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of(i + 8, 0);
+//        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.M, Course.Day.W, Course.Day.F}, times, 50, "MWF Standard"));
+//            times = new LocalTime[8];
+//            for(int i = 0; i < times.length; ++i) times[i] = LocalTime.of((int)Math.floor(i * 1.5) + 8, (i % 2) * 30);
+//        config.addGroup(new DayGroup(new Course.Day[] {Course.Day.T, Course.Day.R}, times, 75));
         
         // Example classes in every standard timeslot
 //        for(int i = 0; i < 12; ++i) {
@@ -600,57 +691,65 @@ public class FXMLDocumentController implements Initializable {
 //        }
         
         //My schedule
-        Course c1 = new Course();
-            c1.setCourseNumber("INTD-405");
-            c1.setFacultyLname("Smith");
-            c1.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
-            c1.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
-            c1.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
-        Course c2 = new Course();
-            c2.setCourseNumber("PHIL-215");
-            c2.setFacultyLname("Krull");
-            c2.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
-            c2.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
-            c2.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
-        Course c3 = new Course();
-            c3.setCourseNumber("MUS-131");
-            c3.setFacultyLname("Lynn");
-            c3.setScheuledTimes(Course.Day.T, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
-            c3.setScheuledTimes(Course.Day.R, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
-        Course c4 = new Course();
-            c4.setCourseNumber("MUS-130");
-            c4.setFacultyLname("Lynn");
-            c4.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
-            c4.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
-            c4.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
-        Course c5 = new Course();
-            c5.setCourseNumber("CPTR-422");
-            c5.setFacultyLname("Mitchell");
-            c5.setFacultyFname("Robin");
-            c5.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
-            c5.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
-            c5.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
-        
-        placedEvents.add(c1);
-        placedEvents.add(c2);
-        placedEvents.add(c3);
-        placedEvents.add(c4);
-        placedEvents.add(c5);
-        
-        updateTimeGrid();
-        
-        Course c6 = new Course();
-            c6.setCourseNumber("UNPLD-001");
-            c6.setFacultyLname("STAFF");
-        unplacedEvents.add(c6);
-        
-        updateUnplacedEvents();
-        
-        autoplacePrefField.setTextFormatter(new TextFormatter<>(change -> {
-            if(!change.getText().matches("[0-9,:]*")) change.setText("");
-            if(change.getControlNewText().length() > 5) change.setText("");
-            return change;
-        }));
+//        Course c1 = new Course();
+//            c1.setCourseNumber("INTD-405");
+//            c1.setFacultyLname("Smith");
+//            c1.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+//            c1.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+//            c1.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(15, 15), LocalTime.of(16, 5)});
+//        Course c2 = new Course();
+//            c2.setCourseNumber("PHIL-215");
+//            c2.setFacultyLname("Krull");
+//            c2.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+//            c2.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+//            c2.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(12, 45), LocalTime.of(13, 35)});
+//        Course c3 = new Course();
+//            c3.setCourseNumber("MUS-131");
+//            c3.setFacultyLname("Lynn");
+//            c3.setScheuledTimes(Course.Day.T, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
+//            c3.setScheuledTimes(Course.Day.R, new LocalTime[]{LocalTime.of(17, 30), LocalTime.of(18, 20)});
+//        Course c4 = new Course();
+//            c4.setCourseNumber("MUS-130");
+//            c4.setFacultyLname("Lynn");
+//            c4.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+//            c4.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+//            c4.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(16, 30), LocalTime.of(17, 20)});
+//        Course c5 = new Course();
+//            c5.setCourseNumber("CPTR-422");
+//            c5.setFacultyLname("Mitchell");
+//            c5.setFacultyFname("Robin");
+//            c5.setScheuledTimes(Course.Day.M, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+//            c5.setScheuledTimes(Course.Day.W, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+//            c5.setScheuledTimes(Course.Day.F, new LocalTime[]{LocalTime.of(11, 45), LocalTime.of(12, 35)});
+//        
+//        placedEvents.add(c1);
+//        placedEvents.add(c2);
+//        placedEvents.add(c3);
+//        placedEvents.add(c4);
+//        placedEvents.add(c5);
+//        
+//        updateTimeGrid();
+//        
+//        Course c6 = new Course();
+//            c6.setCourseNumber("UNPLD-001");
+//            c6.setFacultyLname("STAFF");
+//        unplacedEvents.add(c6);
+//        
+//        updateUnplacedEvents();
+//        
+//        autoplacePrefField.setTextFormatter(new TextFormatter<>(change -> {
+//            if(!change.getText().matches("[0-9,:]*")) change.setText("");
+//            if(change.getControlNewText().length() > 5) change.setText("");
+//            return change;
+//        }));
+//        
+//        config.registerCourse(c1);
+//        config.registerCourse(c2);
+//        config.registerCourse(c3);
+//        config.registerCourse(c4);
+//        config.registerCourse(c5);
+//        config.registerCourse(c6);
+//        updateTimeGrid();
     }
     
     private void initializePopups() {
@@ -692,16 +791,6 @@ public class FXMLDocumentController implements Initializable {
             filterGUIStage.setScene(new Scene(root));
             filterGUIController.setStage(filterGUIStage);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try { 
-            FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("EditColorFXML.fxml"));
-            Parent root = loader.load();
-            editColorController = loader.getController();
-            
-            colorEditorStage.setScene(new Scene(root));
-           editColorController.setStage(colorEditorStage);            
-        } catch (Exception e){
             e.printStackTrace();
         }
         try {

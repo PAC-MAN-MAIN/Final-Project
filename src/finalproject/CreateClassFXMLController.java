@@ -108,9 +108,9 @@ public class CreateClassFXMLController implements Initializable {
         facultyLastField.clear();
         coreField.clear();
         larcField.clear();
-        capacityField.clear();
-        semesterHourField.clear();
-        scheduledHourField.clear();
+        capacityField.setText("0");
+        semesterHourField.setText("0");
+        scheduledHourField.setText("0");
         notesArea.clear();
         adjunctCheck.setSelected(false);
         firstYearCheck.setSelected(false);

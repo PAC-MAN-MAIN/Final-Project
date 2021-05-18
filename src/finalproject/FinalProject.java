@@ -17,16 +17,28 @@ import javafx.stage.Stage;
  */
 public class FinalProject extends Application {
     
+    private static FXMLDocumentController controller = null;
+    
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+        
+        FXMLLoader loader = new FXMLLoader(FinalProject.class.getResource("FXMLDocument.fxml"));
+        Parent root = loader.load();
+        controller = loader.getController();
+        
+//        Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
         
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
         stage.setTitle("Course Scheduler");
-        stage.setResizable(false);
+//        stage.setResizable(false);
         stage.show();
+        
+        stage.heightProperty().addListener((observable, oldValue, newValue) -> {
+            double ratio = (double)newValue / (double)oldValue;
+            controller.modifyRatio(ratio);
+        });
     }
 
     /**

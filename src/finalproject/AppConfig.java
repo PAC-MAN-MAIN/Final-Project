@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import javafx.scene.paint.Color;
 
 
@@ -16,7 +18,11 @@ import javafx.scene.paint.Color;
 public class AppConfig implements Serializable{
     
     private ArrayList<DayGroup> groups = new ArrayList<>();
-    private Map<String, Color> professorColors = new HashMap<>();
+    private Map<String, SerialColor> professorColors = new HashMap<>();
+    
+    public AppConfig(){
+        professorColors.put("", new SerialColor(Color.WHITE));
+    }
     
     public void addGroup(DayGroup g) {
         groups.add(g);
@@ -39,25 +45,64 @@ public class AppConfig implements Serializable{
         groups.remove(g);
     }
     
-    /**
-     * 
-     * @param p - the professor
-     * @return - color associated 
-     */
-    public Color getColor(String p){
-        return professorColors.get(p);
+    
+    
+    public String getFullName(Course c){
+        return c.getFacultyFname()+" "+c.getFacultyLname();
+    }
+    public Color getColor(Course c){
+        SerialColor sc = professorColors.get(getFullName(c));
+        if(sc == null) return null;
+        return sc.getColor();
     }
     
-    public void setProfessorColor(String p, Color c){
-        professorColors.put(p, c);
+    public Color getColor(String s){
+        SerialColor sc = professorColors.get(s);
+        if(sc == null) return null;
+        return sc.getColor();
     }
     
-    public void editColor(String p, Color c){
-        professorColors.replace(p, c);
+    public void setProfessorColor(Course c, Color cl){
+        professorColors.put(getFullName(c), new SerialColor(cl));
     }
     
-    public boolean contains(String p){
-        return professorColors.containsKey(p);
+    public void setProfessorColor(String s, Color c){
+        professorColors.put(s, new SerialColor(c));
+    }
+    
+    public void editColor(String s, Color cl){
+        professorColors.replace(s, new SerialColor(cl));
+    }
+    
+    public boolean isRegistered(Course c){
+        return professorColors.containsKey(getFullName(c));
+    }
+    
+    public Set<String> getProfessors(){
+        return professorColors.keySet();
+    }
+    
+    public void registerCourse(Course c){
+        if(isRegistered(c)){
+            return;
+        } else{
+            setProfessorColor(c,getRandomColor());
+        } 
+    }
+    
+    public void unregisterProfessor(String s) {
+        professorColors.remove(s);
+    }
+    
+    public Color getRandomColor(){
+        Random R = new Random();
+        Color c = Color.WHITE;
+            SerialColor temp = new SerialColor(c);
+        while(professorColors.values().contains(temp)){
+            c = Color.color(R.nextDouble(), R.nextDouble(), R.nextDouble());
+            temp = new SerialColor(c);
+        }
+        return c;
     }
     
 }
